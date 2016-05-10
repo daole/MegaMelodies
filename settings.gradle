@@ -1,0 +1,5 @@
+include ':app'
+include ':androidBaseLibrary'
+project(':androidBaseLibrary').projectDir = new File(settingsDir, '../AndroidBaseLibrary/app')
+include ':androidDataFetchingApisClient'
+project(':androidDataFetchingApisClient').projectDir = new File(settingsDir, '../AndroidDataFetchingApisClient/app')
