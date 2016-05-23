@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dreamdigitizers.androidbaselibrary.views.classes.activities.ActivityBase;
+import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.FragmentBase;
 import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.screens.ScreenBase;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
@@ -49,7 +51,22 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
 
     @Override
     protected void mapInformationToScreenItems(View pView) {
+        ((ActivityBase)this.getActivity()).setSupportActionBar(this.mToolbar);
         this.mViewPager.setAdapter(new ViewPagerAdapter(this.getChildFragmentManager()));
+        this.mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int pPosition, float pPositionOffset, int pPositionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int pPosition) {
+                ScreenMain.this.onPageSelected(pPosition);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int pState) {
+            }
+        });
         this.mTabLayout.setupWithViewPager(this.mViewPager);
         this.mTabLayout.getTabAt(0).setIcon(R.drawable.ic__search);
         this.mTabLayout.getTabAt(1).setIcon(R.drawable.ic__favorite);
@@ -61,8 +78,12 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
         return 0;
     }
 
+    private void onPageSelected(int pPosition) {
+        this.mToolbar.setTitle(this.mViewPager.getAdapter().getPageTitle(pPosition));
+    }
+
     private class ViewPagerAdapter extends FragmentPagerAdapter {
-        private List<Fragment> mFragments;
+        private List<FragmentBase> mFragments;
 
         public ViewPagerAdapter(FragmentManager pFragmentManager) {
             super(pFragmentManager);

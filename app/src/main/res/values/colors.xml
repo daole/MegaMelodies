@@ -6,4 +6,6 @@
     <color name="color_accent">@color/color_primary_dark</color>
     <color name="window_background">#C8E6C9</color>
     <color name="navigation_bar_color">@color/color_primary_dark</color>
+    <color name="tab_background">@color/color_primary</color>
+    <color name="tab_background_pressed">@color/window_background</color>
 </resources>

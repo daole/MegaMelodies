@@ -20,6 +20,5 @@
     </style>
 
     <style name="TabLayout" parent="Container.WrapContent.Vertical">
-        <item name="android:background">@color/color_primary</item>
     </style>
 </resources>

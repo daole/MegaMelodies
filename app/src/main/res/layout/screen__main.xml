@@ -27,7 +27,7 @@
         support:tabMode="fixed"
         support:tabGravity="fill"
         support:tabIndicatorColor="@android:color/white"
-        support:tabBackground="@color/color_primary"
+        support:tabBackground="@drawable/selector__tab_color"
         style="@style/TabLayout" />
 
 </LinearLayout>
