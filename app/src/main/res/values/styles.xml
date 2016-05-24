@@ -29,10 +29,9 @@
     </style>
 
     <style name="DropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@color/window_background</item>
+        <item name="android:background">@drawable/bg__dropdown_list_view</item>
         <item name="android:divider">@color/color_primary</item>
-        <item name="android:dividerHeight">@dimen/dividerHeight</item>
+        <item name="android:dividerHeight">@dimen/divider_height</item>
     </style>
 
     <style name="Root" parent="Container.Full">

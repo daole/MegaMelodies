@@ -19,6 +19,8 @@ import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewSearch;
 
 public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewSearch {
+    private MenuItem mMenuItemSearch;
+    private MenuItem mMenuItemServers;
     private SearchView mSearchView;
     private Spinner mSpnServers;
 
@@ -27,6 +29,20 @@ public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewS
         pInflater.inflate(R.menu.menu__search_screen, pMenu);
         this.setUpSearchViewMenuItem(pMenu);
         this.setUpServerSpinnersMenuItem(pMenu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem pMenuItem) {
+        switch (pMenuItem.getItemId()) {
+            case R.id.option_menu_item__search:
+                this.mMenuItemServers.collapseActionView();
+                return true;
+            case R.id.option_menu_item__servers:
+                this.mMenuItemSearch.collapseActionView();
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -62,8 +78,8 @@ public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewS
 
     private void setUpSearchViewMenuItem(Menu pMenu) {
         SearchManager searchManager = (SearchManager) this.getContext().getSystemService(Context.SEARCH_SERVICE);
-        MenuItem searchMenuItem = pMenu.findItem(R.id.option_menu_item__search);
-        this.mSearchView = (SearchView) searchMenuItem.getActionView();
+        this.mMenuItemSearch = pMenu.findItem(R.id.option_menu_item__search);
+        this.mSearchView = (SearchView) this.mMenuItemSearch.getActionView();
         this.mSearchView.setSearchableInfo(searchManager.getSearchableInfo(this.getActivity().getComponentName()));
         this.mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -81,8 +97,8 @@ public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewS
     private void setUpServerSpinnersMenuItem(Menu pMenu) {
         ArrayAdapter<CharSequence> listAdapter = ArrayAdapter.createFromResource(this.getContext(), R.array.servers, android.R.layout.simple_spinner_item);
         listAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        MenuItem serversMenuItem = pMenu.findItem(R.id.option_menu_item__servers);
-        this.mSpnServers = (Spinner) serversMenuItem.getActionView();
+        this.mMenuItemServers = pMenu.findItem(R.id.option_menu_item__servers);
+        this.mSpnServers = (Spinner) this.mMenuItemServers.getActionView();
         this.mSpnServers.setAdapter(listAdapter);
     }
 
