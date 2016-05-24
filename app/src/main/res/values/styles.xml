@@ -4,6 +4,15 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
+        <item name="colorControlHighlight">@android:color/white</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorAccent">@android:color/white</item>
+    </style>
+
+    <style name="CustomToolbar" parent="Toolbar">
+        <item name="android:theme">@style/ToolbarStyle</item>
     </style>
 
     <style name="Root" parent="Container.Full">
@@ -20,5 +29,6 @@
     </style>
 
     <style name="TabLayout" parent="Container.WrapContent.Vertical">
+        <item name="android:background">@color/color_primary</item>
     </style>
 </resources>

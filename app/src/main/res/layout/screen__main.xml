@@ -10,7 +10,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             support:layout_scrollFlags="scroll|enterAlways"
-            style="@style/Toolbar" />
+            style="@style/CustomToolbar" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -27,7 +27,6 @@
         support:tabMode="fixed"
         support:tabGravity="fill"
         support:tabIndicatorColor="@android:color/white"
-        support:tabBackground="@drawable/selector__tab_color"
         style="@style/TabLayout" />
 
 </LinearLayout>
