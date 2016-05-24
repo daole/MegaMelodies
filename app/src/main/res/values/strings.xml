@@ -3,4 +3,7 @@
     <string name="title__search">Search</string>
     <string name="title__favorites">Favorites</string>
     <string name="title__playlists">Playlists</string>
+    <string name="title__servers">Servers</string>
+
+    <string name="hint__song_search">Search for songs</string>
 </resources>
