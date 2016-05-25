@@ -8,6 +8,8 @@ import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.views.classes.fragments.screens.ScreenMain;
 
 public class ActivityMain extends ActivityBase {
+    public static final String EXTRA__CURRENT_MEDIA_DESCRIPTION = "current_media_description";
+
     private CoordinatorLayout mCoordinatorLayout;
 
     @Override

@@ -5,5 +5,11 @@
     <string name="title__playlists">Playlists</string>
     <string name="title__servers">Servers</string>
 
+    <string name="action__play">Play</string>
+    <string name="action__pause">Pause</string>
+    <string name="action__stop">Stop</string>
+    <string name="action__skip_to_previous">Previous</string>
+    <string name="action__skip_to_next">Next</string>
+
     <string name="hint__song_search">Search for songs</string>
 </resources>

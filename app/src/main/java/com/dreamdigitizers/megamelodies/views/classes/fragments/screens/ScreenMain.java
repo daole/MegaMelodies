@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dreamdigitizers.androidbaselibrary.views.classes.activities.ActivityBase;
-import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.FragmentBase;
 import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.screens.ScreenBase;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
@@ -25,6 +24,21 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     private Toolbar mToolbar;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+    private ViewPagerAdapter mViewPagerAdapter;
+
+    @Override
+    public boolean onBackPressed() {
+        ScreenBase screenBase = (ScreenBase) this.mViewPagerAdapter.getItem(this.mViewPager.getCurrentItem());
+        boolean result = screenBase.onBackPressed();
+        if (result) {
+            return true;
+        }
+        if (this.mViewPager.getCurrentItem() > 0) {
+            this.mViewPager.setCurrentItem(0, true);
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public int getScreenId() {
@@ -52,7 +66,8 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     @Override
     protected void mapInformationToScreenItems(View pView) {
         ((ActivityBase)this.getActivity()).setSupportActionBar(this.mToolbar);
-        this.mViewPager.setAdapter(new ViewPagerAdapter(this.getChildFragmentManager()));
+        this.mViewPagerAdapter = new ViewPagerAdapter(this.getChildFragmentManager());
+        this.mViewPager.setAdapter(this.mViewPagerAdapter);
         this.mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int pPosition, float pPositionOffset, int pPositionOffsetPixels) {
@@ -83,35 +98,35 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {
-        private List<FragmentBase> mFragments;
+        private List<ScreenBase> mScreens;
 
         public ViewPagerAdapter(FragmentManager pFragmentManager) {
             super(pFragmentManager);
-            this.mFragments = new ArrayList<>();
+            this.mScreens = new ArrayList<>();
 
             ScreenSearch screenSearch = new ScreenSearch();
-            this.mFragments.add(screenSearch);
+            this.mScreens.add(screenSearch);
 
             ScreenFavorites screenFavorites = new ScreenFavorites();
-            this.mFragments.add(screenFavorites);
+            this.mScreens.add(screenFavorites);
 
             ScreenPlaylists screenPlaylists = new ScreenPlaylists();
-            this.mFragments.add(screenPlaylists);
-        }
-
-        @Override
-        public Fragment getItem(int pPosition) {
-            return this.mFragments.get(pPosition);
-        }
-
-        @Override
-        public int getCount() {
-            return this.mFragments.size();
+            this.mScreens.add(screenPlaylists);
         }
 
         @Override
         public CharSequence getPageTitle(int pPosition) {
             return null;
+        }
+
+        @Override
+        public Fragment getItem(int pPosition) {
+            return this.mScreens.get(pPosition);
+        }
+
+        @Override
+        public int getCount() {
+            return this.mScreens.size();
         }
     }
 }
