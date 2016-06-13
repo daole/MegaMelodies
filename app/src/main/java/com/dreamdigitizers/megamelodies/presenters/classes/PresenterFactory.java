@@ -4,17 +4,21 @@ import com.dreamdigitizers.androidbaselibrary.presenters.interfaces.IPresenterBa
 import com.dreamdigitizers.androidbaselibrary.views.interfaces.IViewBase;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterFavorites;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterMain;
+import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlaylists;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewFavorites;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewMain;
+import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlaylists;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewSearch;
 
 public class PresenterFactory {
-    private static final String ERROR_MESSAGE__PRESENTER_NOT_FOUND = "There is no such Presenter class.";
-
     public static IPresenterBase createPresenter(Class pPresenterClass, IViewBase pView) {
+        if(pPresenterClass.isAssignableFrom(IPresenterPlayback.class)) {
+            return new PresenterPlayback((IViewPlayback) pView);
+        }
+
         if(pPresenterClass.isAssignableFrom(IPresenterMain.class)) {
             return new PresenterMain((IViewMain) pView);
         }
@@ -31,6 +35,6 @@ public class PresenterFactory {
             return new PresenterPlaylists((IViewPlaylists) pView);
         }
 
-        throw new RuntimeException(PresenterFactory.ERROR_MESSAGE__PRESENTER_NOT_FOUND);
+        throw new RuntimeException("There is no such Presenter class.");
     }
 }

@@ -72,7 +72,7 @@ public class PlaybackNotificationReceiver extends MediaPlayerNotificationReceive
 
         Bitmap art = mediaDescription.getIconBitmap();
         if (art == null) {
-            art = BitmapFactory.decodeResource(mService.getResources(), R.drawable.ic__notification);
+            art = BitmapFactory.decodeResource(mService.getResources(), R.drawable.ic__megamelodies_logo);
         }
 
         notificationBuilder
@@ -85,7 +85,7 @@ public class PlaybackNotificationReceiver extends MediaPlayerNotificationReceive
                 .setContentIntent(this.createContentIntent(mediaDescription))
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic__notification)
+                .setSmallIcon(R.drawable.ic__megamelodies_notification)
                 .setLargeIcon(art);
 
         this.setNotificationPlaybackState(notificationBuilder);

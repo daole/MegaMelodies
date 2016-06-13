@@ -11,5 +11,13 @@
     <string name="action__skip_to_previous">Previous</string>
     <string name="action__skip_to_next">Next</string>
 
+    <string name="media_description_title__search">Search</string>
+    <string name="media_description_title__favorite">Favorite</string>
+    <string name="media_description_title__playlist">Playlist</string>
+
+    <string name="media_description_subtitle__search">Search Songs</string>
+    <string name="media_description_subtitle__favorite">Favorite Songs</string>
+    <string name="media_description_subtitle__playlist">Songs in playlist</string>
+
     <string name="hint__song_search">Search for songs</string>
 </resources>
