@@ -5,6 +5,8 @@
     <string name="title__playlists">Playlists</string>
     <string name="title__servers">Servers</string>
 
+    <string name="message__no_data_to_load">There is no more data to load.</string>
+
     <string name="action__play">Play</string>
     <string name="action__pause">Pause</string>
     <string name="action__stop">Stop</string>
@@ -20,4 +22,7 @@
     <string name="media_description_subtitle__playlist">Songs in playlist</string>
 
     <string name="hint__song_search">Search for songs</string>
+
+    <string name="error__media_network">A network-related error has occurred.</string>
+    <string name="error__blank_playlist_title">Please enter title for new playlist.</string>
 </resources>
