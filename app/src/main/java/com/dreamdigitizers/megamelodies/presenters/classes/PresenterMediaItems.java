@@ -21,18 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 
 abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterBase<V> implements IPresenterMediaItems {
-    private MediaBrowserConnectionCallback mMediaBrowserConnectionCallback;
-    private MediaBrowserSubscriptionCallback mMediaBrowserSubscriptionCallback;
-    private MediaBrowserCompat mMediaBrowser;
-    private MediaControllerCallback mMediaControllerCallback;
-    private MediaControllerCompat mMediaController;
-    private MediaControllerCompat.TransportControls mTransportControls;
+    protected MediaBrowserConnectionCallback mMediaBrowserConnectionCallback;
+    protected MediaBrowserSubscriptionCallback mMediaBrowserSubscriptionCallback;
+    protected MediaBrowserCompat mMediaBrowser;
+    protected MediaControllerCallback mMediaControllerCallback;
+    protected MediaControllerCompat mMediaController;
+    protected MediaControllerCompat.TransportControls mTransportControls;
 
     protected HashMap<String, HashMap<Integer, Object>> mTransactionActions;
 
+    protected int mOffset;
+
     public PresenterMediaItems(V pView) {
         super(pView);
-
         Context context = pView.getViewContext();
         this.mMediaBrowserConnectionCallback = new MediaBrowserConnectionCallback();
         this.mMediaBrowserSubscriptionCallback = new MediaBrowserSubscriptionCallback();
@@ -42,7 +43,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     }
 
     @Override
-    public void start() {
+    public void connect() {
         V view = this.getView();
         if (view != null) {
             if (!this.mMediaBrowser.isConnected()) {
@@ -62,25 +63,11 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     }
 
     @Override
-    public void stop() {
+    public void disconnect() {
         if (this.mMediaBrowser.isConnected()) {
-            String mediaIdRefresh = this.getMediaIdRefresh();
-            if (mediaIdRefresh != null) {
-                this.mMediaBrowser.unsubscribe(mediaIdRefresh);
-            }
             this.mMediaBrowser.unsubscribe(this.getMediaId());
-            this.mMediaBrowser.unsubscribe(this.getMediaIdMore());
             this.mMediaBrowser.disconnect();
             this.mMediaController.unregisterCallback(this.mMediaControllerCallback);
-        }
-    }
-
-    @Override
-    public void refresh() {
-        V view = this.getView();
-        if (view != null) {
-            view.showRefreshProgress();
-            this.load(this.getMediaIdRefresh());
         }
     }
 
@@ -89,7 +76,8 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
         V view = this.getView();
         if (view != null) {
             view.showLoadMoreProgress();
-            this.load(this.getMediaIdMore());
+            this.mOffset++;
+            this.load(this.getMediaId());
         }
     }
 
@@ -163,24 +151,11 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
             if (pChildren.size() <= 0) {
                 view.showMessage(R.string.message__no_data_to_load, R.string.blank, null);
             } else {
-                if (UtilsString.equals(pParentId, this.getMediaIdMore())) {
-                    view.addMediaItems(pChildren, false);
-                } else {
-                    view.addMediaItems(pChildren, true);
-                }
+                view.addMediaItems(pChildren, false);
             }
 
-            if (UtilsString.equals(pParentId, this.getMediaId())) {
-                view.hideNetworkProgress();
-            }
-
-            if (UtilsString.equals(pParentId, this.getMediaIdRefresh())) {
-                view.hideRefreshProgress();
-            }
-
-            if (UtilsString.equals(pParentId, this.getMediaIdMore())) {
-                view.hideLoadMoreProgress();
-            }
+            view.hideNetworkProgress();
+            view.hideLoadMoreProgress();
         }
     }
 
@@ -196,7 +171,6 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
         if (view != null) {
             if (pPlaybackState.getState() == PlaybackStateCompat.STATE_ERROR) {
                 view.hideNetworkProgress();
-                view.hideRefreshProgress();
                 view.hideLoadMoreProgress();
 
                 int errorMessageResourceId = 0;
@@ -249,8 +223,6 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     }
 
     protected abstract String getMediaId();
-    protected abstract String getMediaIdRefresh();
-    protected abstract String getMediaIdMore();
 
     private class MediaBrowserConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
         @Override

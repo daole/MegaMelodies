@@ -3,9 +3,8 @@ package com.dreamdigitizers.megamelodies.presenters.interfaces;
 import com.dreamdigitizers.androidbaselibrary.presenters.interfaces.IPresenterBase;
 
 public interface IPresenterMediaItems extends IPresenterBase {
-    void start();
-    void stop();
-    void refresh();
+    void connect();
+    void disconnect();
     void loadMore();
     void skipToPrevious();
     void play();

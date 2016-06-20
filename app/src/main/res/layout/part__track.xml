@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:support="http://schemas.android.com/apk/res-auto"
+    support:cardUseCompatPadding="true"
+    support:cardElevation="1dp"
+    style="@style/Container.WrapContent.Vertical" >
+
+    <RelativeLayout
+        style="@style/Container.WrapContent.Vertical.Row.Padding" >
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgMediaItem"
+            style="@style/ImageView.MediaItem" />
+
+        <TextView
+            android:id="@+id/lblName"
+            android:layout_toRightOf="@id/imgMediaItem"
+            style="@style/TextView.ListItem.Primary.Dark.Name" />
+
+        <TextView
+            android:id="@+id/lblArtist"
+            android:layout_below="@id/lblName"
+            android:layout_alignLeft="@id/lblName"
+            style="@style/TextView.ListItem.Secondary.Dark.Artist" />
+
+        <RelativeLayout
+            android:layout_below="@id/lblArtist"
+            android:layout_alignLeft="@id/lblArtist"
+            style="@style/Container.WrapContent.Vertical.Row" >
+
+            <ImageView
+                android:id="@+id/imgPlaybackStatus"
+                style="@style/ImageView.PlaybackStatus" />
+
+            <ImageView
+                android:id="@+id/imgFavorite"
+                android:layout_toLeftOf="@+id/btnContextMenu"
+                style="@style/ImageView.Favorite" />
+
+            <ImageButton
+                android:id="@+id/btnContextMenu"
+                style="@style/ImageButton.ContextMenu" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

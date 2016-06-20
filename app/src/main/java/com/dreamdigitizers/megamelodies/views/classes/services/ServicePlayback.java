@@ -2,21 +2,27 @@ package com.dreamdigitizers.megamelodies.views.classes.services;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsDialog;
+import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.ServiceMediaBrowser;
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.CustomQueueItem;
+import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.IPlayback;
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.MediaPlayerNotificationReceiver;
+import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.MusicNct;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.MusicZing;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
@@ -24,6 +30,7 @@ import com.dreamdigitizers.megamelodies.views.classes.services.support.PlaybackN
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewRx;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,16 +38,17 @@ public class ServicePlayback extends ServiceMediaBrowser {
     public static final String ERROR_CODE__MEDIA_NETWORK = "1";
 
     public static final String MEDIA_ID__ROOT = "mediaId://servicePlayback/";
-    public static final String MEDIA_ID__SEARCH = ServicePlayback.MEDIA_ID__ROOT + "search";
+    private static final String MEDIA_ID__SEARCH_ROOT = ServicePlayback.MEDIA_ID__ROOT + "search";
+    public static final String MEDIA_ID__SEARCH = ServicePlayback.MEDIA_ID__SEARCH_ROOT + "?serverId=%d&query=%s&offset=%d&pageSize=%d&type=%s&num=%d";
     public static final String MEDIA_ID__FAVORITES = ServicePlayback.MEDIA_ID__ROOT + "favorites";
     public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__ROOT + "playlists";
     public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__ROOT + "playlist";
 
     public static final String CUSTOM_ACTION__FAVORITE = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.FAVORITE";
+    public static final String CUSTOM_ACTION__CREATE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.CREATE_PLAYLIST";
     public static final String CUSTOM_ACTION__DELETE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.DELETE_PLAYLIST";
     public static final String CUSTOM_ACTION__ADD_TO_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.ADD_TO_PLAYLIST";
     public static final String CUSTOM_ACTION__REMOVE_FROM_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.REMOVE_FROM_PLAYLIST";
-    public static final String CUSTOM_ACTION__CREATE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.CREATE_PLAYLIST";
 
     private static final String EVENT_URI__ROOT = "mediaEvent://servicePlayback?action=%s";
     private static final String EVENT_URI__FAVORITE = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&userFavorite=%s";
@@ -75,11 +83,6 @@ public class ServicePlayback extends ServiceMediaBrowser {
     private List<MediaBrowserCompat.MediaItem> mFavoritesMediaItems;
     private List<MediaBrowserCompat.MediaItem> mPlaylistsMediaItems;
 
-    private int mSearchOffset;
-    private int mFavoritesOffset;
-    private int mPlaylistsOffset;
-    private int mPlaylistOffset;
-
     private boolean mIsSearchMore;
     private boolean mIsFavoritesMore;
     private boolean mIsPlaylistsMore;
@@ -90,10 +93,12 @@ public class ServicePlayback extends ServiceMediaBrowser {
 
     private int mActiveMode;
 
-    private int mCurrentServerId;
-    private String mCurrentQuery;
-    private String mCurrentType;
-    private int mCurrentNum;
+    private int mLastServerId;
+    private String mLastQuery;
+    private String mLastType;
+    private int mLastNum;
+    private int mLastStartIndex;
+    private int mLastEndIndex;
 
     @Override
     public void onCreate() {
@@ -113,12 +118,75 @@ public class ServicePlayback extends ServiceMediaBrowser {
 
         this.mView = new ViewPlayback();
         this.mPresenter = (IPresenterPlayback) PresenterFactory.createPresenter(IPresenterPlayback.class, this.mView);
+
+        Api.initialize(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         this.mPresenter.dispose();
+    }
+
+    @Override
+    protected void processPlayFromMediaIdRequest(String pMediaId, Bundle pExtras) {
+        this.setPlayingQueue(this.mActiveQueue);
+        super.processPlayFromMediaIdRequest(pMediaId, pExtras);
+    }
+
+    @Override
+    protected void processPlayRequest() {
+        if (!this.isStarted()) {
+            this.setStarted(true);
+        }
+
+        MediaSessionCompat mediaSession = this.getMediaSession();
+        if (!mediaSession.isActive()) {
+            mediaSession.setActive(true);
+        }
+
+        int currentIndexOnQueue = this.getCurrentIndexOnQueue();
+        List<CustomQueueItem> playingQueue = this.getPlayingQueue();
+        IPlayback playback = this.getPlayback();
+        if (this.isIndexPlayable(this.getCurrentIndexOnQueue(), this.getPlayingQueue())) {
+            CustomQueueItem customQueueItem = playingQueue.get(currentIndexOnQueue);
+            if (UtilsString.isEmpty(customQueueItem.getStreamUrl())) {
+                MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
+                Serializable track = mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) {
+                    com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) track;
+                    this.mPresenter.nctFetch(null, song.getUrl(), song.getName());
+                } else if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) {
+                    com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) track;
+                    this.mPresenter.zingFetch(null, song.getName(), song.getArtist(), song.getId());
+                }
+
+                playback.setState(PlaybackStateCompat.STATE_BUFFERING);
+            } else {
+                playback.play(customQueueItem);
+            }
+            this.updateMetadata();
+        }
+    }
+
+    @Override
+    protected void updateMetadata() {
+        if (!this.isIndexPlayable(this.getCurrentIndexOnQueue(), this.getPlayingQueue())) {
+            this.updatePlaybackState(ServiceMediaBrowser.ERROR_CODE__MEDIA_INVALID_INDEX);
+            return;
+        }
+
+        CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
+        MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
+        if (Build.VERSION.SDK_INT >= 21) {
+            Serializable track = mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Share.setCurrentTrack(track);
+        }
+        this.getMediaSession().setMetadata(mediaMetadata);
+
+        if (mediaMetadata.getDescription().getIconBitmap() == null && mediaMetadata.getDescription().getIconUri() != null) {
+            this.fetchArt(customQueueItem);
+        }
     }
 
     @Override
@@ -140,7 +208,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
     public void onLoadChildren(String pParentId, Result<List<MediaBrowserCompat.MediaItem>> pResult) {
         Uri uri = Uri.parse(pParentId);
 
-        if (pParentId.startsWith(ServicePlayback.MEDIA_ID__SEARCH)) {
+        if (pParentId.startsWith(ServicePlayback.MEDIA_ID__SEARCH_ROOT)) {
             this.loadChildrenSearch(pResult, uri);
         } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__FAVORITES)) {
             this.loadChildrenFavorites(pResult);
@@ -184,40 +252,73 @@ public class ServicePlayback extends ServiceMediaBrowser {
 
     private void loadChildrenSearch(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
         this.mActiveMode = ServicePlayback.ACTIVE_MODE__SEARCH;
-        this.mSearchOffset = 0;
-        this.mIsSearchMore = true;
-        this.mSearchQueue = new ArrayList<>();
-        this.mSearchMediaItems.clear();
 
-        this.mSearchResult = pResult;
-        this.mSearchResult.detach();
-        this.mCurrentServerId = Integer.parseInt(pUri.getQueryParameter("serverId"));
-        this.mCurrentQuery = pUri.getQueryParameter("query");
-        this.mCurrentType = null;
-        this.mCurrentNum = 0;
+        int serverId = Integer.parseInt(pUri.getQueryParameter("serverId"));
+        String query = pUri.getQueryParameter("query");
+        int offset = Integer.parseInt(pUri.getQueryParameter("offset"));
+        int pageSize = Integer.parseInt(pUri.getQueryParameter("pageSize"));
+        String type = pUri.getQueryParameter("type");
+        int num = Integer.parseInt(pUri.getQueryParameter("num"));
 
-        switch (this.mCurrentServerId) {
-            case ServicePlayback.SERVER_ID__ZING:
-                this.mCurrentType = pUri.getQueryParameter("type");
-                this.mCurrentNum = Integer.parseInt(pUri.getQueryParameter("num"));
-                this.mPresenter.zingSearch(null, this.mCurrentType, this.mCurrentNum, this.mCurrentQuery);
-                break;
-            case ServicePlayback.SERVER_ID__NCT:
-                this.mPresenter.nctSearch(null, this.mCurrentQuery);
-                break;
-            default:
-                break;
+        if (offset < 0) {
+            offset = 0;
+        }
+
+        int startIndex = offset * pageSize;
+        int endIndex = (offset + 1) * pageSize;
+
+        if (serverId == this.mLastServerId
+                && UtilsString.equals(query, this.mLastQuery)
+                && UtilsString.equals(type, this.mLastType)
+                && this.mLastNum == num
+                && !this.mSearchMediaItems.isEmpty()) {
+            int size = this.mSearchMediaItems.size();
+            if (startIndex >= size) {
+                this.mIsSearchMore = false;
+                pResult.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
+                return;
+            }
+            if (endIndex > size) {
+                if (!this.mIsSearchMore) {
+                    pResult.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
+                    return;
+                }
+                endIndex = size;
+                this.mIsSearchMore = false;
+            }
+
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
+            pResult.sendResult(mediaItems);
+        } else {
+            this.mIsSearchMore = true;
+
+            this.mLastServerId = serverId;
+            this.mLastQuery = query;
+            this.mLastType = type;
+            this.mLastNum = num;
+            this.mLastStartIndex = startIndex;
+            this.mLastEndIndex = endIndex;
+
+            this.mSearchQueue = new ArrayList<>();
+            this.mSearchMediaItems.clear();
+
+            this.mSearchResult = pResult;
+            this.mSearchResult.detach();
+
+            switch (this.mLastServerId) {
+                case ServicePlayback.SERVER_ID__ZING:
+                    this.mPresenter.zingSearch(null, this.mLastType, this.mLastNum, this.mLastQuery);
+                    break;
+                case ServicePlayback.SERVER_ID__NCT:
+                    this.mPresenter.nctSearch(null, this.mLastQuery);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
-    private void loadChildrenSearchMore(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
-    }
-
     private void loadChildrenFavorites(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
-
-    }
-
-    private void loadChildrenFavoritesMore(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
 
     }
 
@@ -225,15 +326,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
 
     }
 
-    private void loadChildrenPlaylistsMore(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
-
-    }
-
     private void loadChildrenPlaylist(String pPlaylistId, Result<List<MediaBrowserCompat.MediaItem>> pResult) {
-
-    }
-
-    private void loadChildrenPlaylistMore(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
 
     }
 
@@ -270,6 +363,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
             }
         }
 
+        customQueueItemsSize = customQueueItems.size();
         if (customQueueItemsSize > 0) {
             if (pIsAddToTop) {
                 pPlayingQueue.addAll(0, customQueueItems);
@@ -306,6 +400,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
             }
         }
 
+        customQueueItemsSize = customQueueItems.size();
         if (customQueueItemsSize > 0) {
             if (pIsAddToTop) {
                 pPlayingQueue.addAll(0, customQueueItems);
@@ -318,8 +413,21 @@ public class ServicePlayback extends ServiceMediaBrowser {
     }
 
     private void onRxSearchNext(List<MediaBrowserCompat.MediaItem> pMediaItems) {
-        this.mSearchMediaItems.addAll(0, pMediaItems);
-        this.mSearchResult.sendResult(pMediaItems);
+        this.mSearchMediaItems.addAll(pMediaItems);
+
+        List<MediaBrowserCompat.MediaItem> mediaItems;
+        int size = this.mSearchMediaItems.size();
+        if (this.mLastStartIndex >= size) {
+            this.mIsSearchMore = false;
+            mediaItems = new ArrayList<>();
+        } else {
+            if (this.mLastEndIndex > size) {
+                this.mLastEndIndex = size;
+                this.mIsSearchMore = false;
+            }
+            mediaItems = this.mSearchMediaItems.subList(this.mLastStartIndex, this.mLastEndIndex);
+        }
+        this.mSearchResult.sendResult(mediaItems);
         this.mSearchResult = null;
         if (this.mActiveMode == ServicePlayback.ACTIVE_MODE__SEARCH) {
             this.mActiveQueue = this.mSearchQueue;
@@ -328,24 +436,30 @@ public class ServicePlayback extends ServiceMediaBrowser {
 
     private void onRxNctSearchNext(NctSearchResult pNctSearchResult) {
         if (this.mSearchResult != null) {
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pNctSearchResult, this.mSearchQueue, true);
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pNctSearchResult, this.mSearchQueue, false);
             this.onRxSearchNext(mediaItems);
         }
     }
 
     private void onRxZingSearchNext(ZingSearchResult pZingSearchResult) {
         if (this.mSearchResult != null) {
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pZingSearchResult, this.mSearchQueue, true);
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pZingSearchResult, this.mSearchQueue, false);
             this.onRxSearchNext(mediaItems);
         }
     }
 
-    private void onRxNctFetchNext(MusicNct pMusicNct) {
+    private void onRxFetchNext(String pStreamUrl) {
+        CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
+        customQueueItem.setStreamUrl(pStreamUrl);
+        this.getPlayback().play(customQueueItem);
+    }
 
+    private void onRxNctFetchNext(MusicNct pMusicNct) {
+        this.onRxFetchNext(pMusicNct.getLocation());
     }
 
     private void onRxZingFetchNext(MusicZing pMusicZing) {
-
+        this.onRxFetchNext(pMusicZing.getSource());
     }
 
     private void onRxError(Throwable pError, UtilsDialog.IRetryAction pRetryAction) {

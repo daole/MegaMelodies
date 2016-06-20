@@ -18,11 +18,13 @@ import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewSearch;
 
-public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewSearch {
+public class ScreenSearch extends ScreenTracks<IPresenterSearch> implements IViewSearch {
     private MenuItem mMenuItemSearch;
     private MenuItem mMenuItemServers;
     private SearchView mSearchView;
     private Spinner mSpnServers;
+
+    private String mQuery;
 
     @Override
     protected void createOptionsMenu(Menu pMenu, MenuInflater pInflater) {
@@ -62,18 +64,18 @@ public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewS
     }
 
     @Override
-    protected void retrieveScreenItems(View pView) {
-
-    }
-
-    @Override
-    protected void mapInformationToScreenItems(View pView) {
-
-    }
-
-    @Override
     protected int getTitle() {
         return R.string.title__search;
+    }
+
+    @Override
+    public int getServerId() {
+        return this.mSpnServers.getSelectedItemPosition();
+    }
+
+    @Override
+    public String getQuery() {
+        return this.mQuery;
     }
 
     private void setUpSearchViewMenuItem(Menu pMenu) {
@@ -105,10 +107,17 @@ public class ScreenSearch extends ScreenBase<IPresenterSearch> implements IViewS
     private boolean onSearchViewQueryTextSubmitted(String pQuery) {
         //MenuItemCompat.collapseActionView(this.mActionSearch);
         this.mSearchView.clearFocus();
+        this.handleSearch(pQuery);
         return true;
     }
 
     private boolean onSearchViewQueryTextChanged(String pNewText) {
         return false;
+    }
+
+    private void handleSearch(String pQuery) {
+        this.mQuery = pQuery;
+        this.mFragmentMediaItems.clearMediaItems();
+        this.mPresenter.search();
     }
 }

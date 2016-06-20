@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Container.WrapContent.Vertical.OrientationVertical" >
+
+    <android.support.design.widget.TextInputLayout
+        style="@style/Container.WrapContent.Vertical" >
+
+        <EditText
+            android:id="@+id/txtPlaylistTitle"
+            style="@style/EditText.PlaylistTitle" />
+
+    </android.support.design.widget.TextInputLayout >
+
+    <Button
+        android:id="@+id/btnOK"
+        style="@style/Button.BorderLess.Dialog.OK" />
+
+</LinearLayout>

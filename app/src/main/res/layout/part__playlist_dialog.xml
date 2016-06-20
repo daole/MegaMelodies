@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:support="http://schemas.android.com/apk/res-auto"
+    support:cardUseCompatPadding="true"
+    support:cardElevation="1dp"
+    style="@style/Container.WrapContent.Vertical" >
+
+    <RelativeLayout
+        style="@style/Container.WrapContent.Vertical.Row.Padding" >
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgMediaItem"
+            style="@style/ImageView.Avatar.Dialog" />
+
+        <TextView
+            android:id="@+id/lblName"
+            android:layout_toRightOf="@id/imgMediaItem"
+            android:layout_toLeftOf="@+id/btnAddToRemoveFromPlaylist"
+            style="@style/TextView.ListItem.Primary.Dark.Center" />
+
+       <Button
+           android:id="@+id/btnAddToRemoveFromPlaylist"
+           style="@style/Button.BorderLess.Dialog.AddToRemoveFromPlaylist" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

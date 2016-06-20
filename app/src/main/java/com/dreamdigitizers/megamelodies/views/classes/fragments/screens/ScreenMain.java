@@ -84,7 +84,7 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
         });
         this.mTabLayout.setupWithViewPager(this.mViewPager);
         this.mTabLayout.getTabAt(0).setIcon(R.drawable.ic__search);
-        this.mTabLayout.getTabAt(1).setIcon(R.drawable.ic__favorite);
+        this.mTabLayout.getTabAt(1).setIcon(R.drawable.ic__favorite_white);
         this.mTabLayout.getTabAt(2).setIcon(R.drawable.ic__playlist);
     }
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:support="http://schemas.android.com/apk/res-auto"
+    support:cardUseCompatPadding="true"
+    support:cardElevation="1dp"
+    style="@style/Container.WrapContent.Vertical" >
+
+    <RelativeLayout
+        style="@style/Container.WrapContent.Vertical.Row.Padding" >
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgMediaItem"
+            style="@style/ImageView.MediaItem" />
+
+        <TextView
+            android:id="@+id/lblName"
+            style="@style/TextView.ListItem.Primary.Dark" />
+
+        <RelativeLayout
+            android:layout_below="@id/lblName"
+            android:layout_alignLeft="@id/lblName"
+            style="@style/Container.WrapContent.Vertical.Row" >
+
+            <ImageButton
+                android:id="@+id/btnContextMenu"
+                style="@style/ImageButton.ContextMenu" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
