@@ -8,14 +8,14 @@
     <item
         android:id="@+id/option_menu_item__search"
         android:title="@string/title__search"
-        android:icon="@drawable/ic__search"
+        android:icon="@drawable/ic__search_white"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item
         android:id="@+id/option_menu_item__servers"
         android:title="@string/title__servers"
-        android:icon="@drawable/ic__servers"
+        android:icon="@drawable/ic__servers_white"
         app:actionViewClass="android.widget.Spinner"
         app:showAsAction="ifRoom|collapseActionView" />
 

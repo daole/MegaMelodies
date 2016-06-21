@@ -59,9 +59,9 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private static final String EVENT_URI__REMOVE_FROM_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&playlistId=%s";
 
     private static final String URI__DRAWABLE = "android.resource://com.dreamdigitizers.megamelodies/drawable/";
-    private static final String URI__DRAWABLE_ICON_SEARCH = ServicePlayback.URI__DRAWABLE + "ic__search";
+    private static final String URI__DRAWABLE_ICON_SEARCH = ServicePlayback.URI__DRAWABLE + "ic__search_white";
     private static final String URI__DRAWABLE_ICON_FAVORITE =  ServicePlayback.URI__DRAWABLE + "ic__favorite";
-    private static final String URI__DRAWABLE_ICON_PLAYLIST =  ServicePlayback.URI__DRAWABLE + "ic__playlist";
+    private static final String URI__DRAWABLE_ICON_PLAYLIST =  ServicePlayback.URI__DRAWABLE + "ic__playlist_white";
 
     public static final int SERVER_ID__ZING = 0;
     public static final int SERVER_ID__NCT = 1;
