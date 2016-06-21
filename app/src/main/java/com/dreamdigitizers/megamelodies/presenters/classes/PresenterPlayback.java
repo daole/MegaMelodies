@@ -3,8 +3,8 @@ package com.dreamdigitizers.megamelodies.presenters.classes;
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsDialog;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.IApi;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.MusicNct;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.MusicZing;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctMusic;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
@@ -104,17 +104,17 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<MusicNct>() {
+                .subscribe(new Subscriber<NctMusic>() {
                     @Override
                     public void onStart() {
                         PresenterPlayback.this.onStart();
                     }
 
                     @Override
-                    public void onNext(MusicNct pMusicNct) {
+                    public void onNext(NctMusic pNctMusic) {
                         IViewPlayback view = PresenterPlayback.this.getView();
                         if (view != null) {
-                            view.onRxNctFetchNext(pMusicNct);
+                            view.onRxNctFetchNext(pNctMusic);
                         }
                     }
 
@@ -138,17 +138,17 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<MusicZing>() {
+                .subscribe(new Subscriber<ZingMusic>() {
                     @Override
                     public void onStart() {
                         PresenterPlayback.this.onStart();
                     }
 
                     @Override
-                    public void onNext(MusicZing pMusicZing) {
+                    public void onNext(ZingMusic pZingMusic) {
                         IViewPlayback view = PresenterPlayback.this.getView();
                         if (view != null) {
-                            view.onRxZingFetchNext(pMusicZing);
+                            view.onRxZingFetchNext(pZingMusic);
                         }
                     }
 

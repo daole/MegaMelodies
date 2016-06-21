@@ -17,10 +17,14 @@ import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.Cus
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.IPlayback;
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.MediaPlayerNotificationReceiver;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.MusicNct;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.MusicZing;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctMusic;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctData;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingData;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
@@ -161,12 +165,12 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             if (UtilsString.isEmpty(customQueueItem.getStreamUrl())) {
                 MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
                 Serializable track = mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-                if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) {
-                    com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) track;
-                    this.mPresenter.nctFetch(null, song.getUrl(), song.getName());
-                } else if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) {
-                    com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) track;
-                    this.mPresenter.zingFetch(null, song.getName(), song.getArtist(), song.getId());
+                if (track instanceof NctSong) {
+                    NctSong nctSong = (NctSong) track;
+                    this.mPresenter.nctFetch(null, nctSong.getUrl(), nctSong.getName());
+                } else if (track instanceof ZingSong) {
+                    ZingSong zingSong = (ZingSong) track;
+                    this.mPresenter.zingFetch(null, zingSong.getName(), zingSong.getArtist(), zingSong.getId());
                 }
 
                 playback.setState(PlaybackStateCompat.STATE_BUFFERING);
@@ -365,12 +369,12 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         List<CustomQueueItem> customQueueItems = new ArrayList<>();
 
         long customQueueItemsSize = customQueueItems.size();
-        com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Data data = pNctSearchResult.getData();
-        if (data != null) {
+        NctData nctData = pNctSearchResult.getData();
+        if (nctData != null) {
             long i = 0;
-            List<com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song> songs = data.getSongs();
-            for (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song song : songs) {
-                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(song);
+            List<NctSong> nctSongs = nctData.getSongs();
+            for (NctSong nctSong : nctSongs) {
+                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(nctSong);
                 MediaDescriptionCompat mediaDescription = MetadataBuilder.build(mediaMetadata);
 
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
@@ -401,13 +405,13 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         List<CustomQueueItem> customQueueItems = new ArrayList<>();
 
         long customQueueItemsSize = customQueueItems.size();
-        List<com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Data> dataList = pZingSearchResult.getDataList();
-        com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Data data = dataList.isEmpty() ? null : dataList.get(0);
-        if (data != null) {
+        List<ZingData> zingDataList = pZingSearchResult.getDataList();
+        ZingData zingData = zingDataList.isEmpty() ? null : zingDataList.get(0);
+        if (zingData != null) {
             long i = 0;
-            List<com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song> songs = data.getSongs();
-            for (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song song : songs) {
-                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(song);
+            List<ZingSong> zingSongs = zingData.getSongs();
+            for (ZingSong zingSong : zingSongs) {
+                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(zingSong);
                 MediaDescriptionCompat mediaDescription = MetadataBuilder.build(mediaMetadata);
 
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
@@ -476,12 +480,12 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         this.getPlayback().play(customQueueItem);
     }
 
-    private void onRxNctFetchNext(MusicNct pMusicNct) {
-        this.onRxFetchNext(pMusicNct.getLocation());
+    private void onRxNctFetchNext(NctMusic pNctMusic) {
+        this.onRxFetchNext(pNctMusic.getLocation());
     }
 
-    private void onRxZingFetchNext(MusicZing pMusicZing) {
-        this.onRxFetchNext(pMusicZing.getSource());
+    private void onRxZingFetchNext(ZingMusic pZingMusic) {
+        this.onRxFetchNext(pZingMusic.getSource());
     }
 
     private void onRxError(Throwable pError, UtilsDialog.IRetryAction pRetryAction) {
@@ -515,13 +519,13 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         }
 
         @Override
-        public void onRxNctFetchNext(MusicNct pMusicNct) {
-            ServicePlayback.this.onRxNctFetchNext(pMusicNct);
+        public void onRxNctFetchNext(NctMusic pNctMusic) {
+            ServicePlayback.this.onRxNctFetchNext(pNctMusic);
         }
 
         @Override
-        public void onRxZingFetchNext(MusicZing pMusicZing) {
-            ServicePlayback.this.onRxZingFetchNext(pMusicZing);
+        public void onRxZingFetchNext(ZingMusic pZingMusic) {
+            ServicePlayback.this.onRxZingFetchNext(pZingMusic);
         }
     }
 }

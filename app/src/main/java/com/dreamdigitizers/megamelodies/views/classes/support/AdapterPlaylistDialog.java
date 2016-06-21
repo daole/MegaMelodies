@@ -42,7 +42,7 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
     public void onBindViewHolder(DialogPlaylistViewHolder pHolder, int pPosition) {
         MediaBrowserCompat.MediaItem mediaItem = this.mPlaylists.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        //Playlist playlist = (Playlist) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
             pHolder.mImgMediaItem.setImageBitmap(bitmap);

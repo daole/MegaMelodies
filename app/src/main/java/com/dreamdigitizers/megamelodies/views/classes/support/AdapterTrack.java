@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSinger;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
@@ -62,19 +65,19 @@ public class AdapterTrack extends AdapterPlaylist {
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
         Serializable track = mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-        if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) {
-            com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) track;
-            id = song.getId();
-            name = song.getName();
-            List<com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Singer> singers = song.getSingers();
-            if (singers.size() > 0) {
-                artist = singers.get(0).getName();
+        if (track instanceof NctSong) {
+            NctSong nctSong = (NctSong) track;
+            id = nctSong.getId();
+            name = nctSong.getName();
+            List<NctSinger> nctSingers = nctSong.getSingers();
+            if (nctSingers.size() > 0) {
+                artist = nctSingers.get(0).getName();
             }
-        } else if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) {
-            com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) track;
-            id = song.getId();
-            name = song.getName();
-            artist = song.getArtist();
+        } else if (track instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) track;
+            id = zingSong.getId();
+            name = zingSong.getName();
+            artist = zingSong.getArtist();
         }
 
         Bitmap bitmap = mediaDescription.getIconBitmap();
@@ -93,12 +96,12 @@ public class AdapterTrack extends AdapterPlaylist {
             if (currentTrack == null && Build.VERSION.SDK_INT >= 21) {
                 currentTrack = Share.getCurrentTrack();
             }
-            if (currentTrack instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) {
-                com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song currentSong = (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) currentTrack;
-                currentId = currentSong.getId();
-            } else if (currentTrack instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) {
-                com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song currentSong = (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) currentTrack;
-                currentId = currentSong.getId();
+            if (currentTrack instanceof NctSong) {
+                NctSong currentNctSong = (NctSong) currentTrack;
+                currentId = currentNctSong.getId();
+            } else if (currentTrack instanceof ZingSong) {
+                ZingSong currentZingSong = (ZingSong) currentTrack;
+                currentId = currentZingSong.getId();
             }
             if (currentTrack != null && UtilsString.equals(id, currentId)) {
                 int state = PlaybackStateCompat.STATE_PAUSED;
@@ -156,10 +159,10 @@ public class AdapterTrack extends AdapterPlaylist {
             MediaDescriptionCompat mediaDescription = this.mMediaItem.getDescription();
             Serializable track = mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
             boolean isFavorite = false;
-            if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) {
-                com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.nct.Song) track;
-            } else if (track instanceof com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) {
-                com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song song = (com.dreamdigitizers.androiddatafetchingapisclient.models.zing.Song) track;
+            if (track instanceof NctSong) {
+                NctSong nctSong = (NctSong) track;
+            } else if (track instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) track;
             }
 
             MenuItem menuItem = pContextMenu.getItem(0);

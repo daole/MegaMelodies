@@ -118,7 +118,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
                 view.showNetworkProgress();
             }
             Serializable track = pTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-            Playlist playlist = (Playlist) pPlaylist.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
+            NctPlaylist playlist = (NctPlaylist) pPlaylist.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
             Bundle bundle = new Bundle();
             bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
             bundle.putSerializable(Constants.BUNDLE_KEY__PLAYLIST, playlist);
@@ -193,9 +193,9 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
 
     /*private class TrackPlaylistPair {
         private Track mTrack;
-        private Playlist mPlaylist;
+        private NctPlaylist mPlaylist;
 
-        private TrackPlaylistPair(Track pTrack, Playlist pPlaylist) {
+        private TrackPlaylistPair(Track pTrack, NctPlaylist pPlaylist) {
             this.mTrack = pTrack;
             this.mPlaylist = pPlaylist;
         }
