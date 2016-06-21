@@ -41,6 +41,10 @@
             android:clearTaskOnLaunch="true"
             android:finishOnTaskLaunch="true" />
 
+        <provider
+            android:name=".models.local.sqlite.ContentProviderMegaMelodies"
+            android:authorities="com.dreamdigitizers.megamelodies.ContentProviderMegaMelodies" />
+
         <service
             android:name=".views.classes.services.ServicePlayback" >
 
