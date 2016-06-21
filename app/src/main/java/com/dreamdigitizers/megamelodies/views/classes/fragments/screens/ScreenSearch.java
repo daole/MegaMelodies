@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.screens.ScreenBase;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
@@ -105,7 +104,6 @@ public class ScreenSearch extends ScreenTracks<IPresenterSearch> implements IVie
     }
 
     private boolean onSearchViewQueryTextSubmitted(String pQuery) {
-        //MenuItemCompat.collapseActionView(this.mActionSearch);
         this.mSearchView.clearFocus();
         this.handleSearch(pQuery);
         return true;

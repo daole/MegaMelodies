@@ -25,6 +25,7 @@ import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.CustomLocalPlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.PlaybackNotificationReceiver;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
@@ -34,7 +35,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServicePlayback extends ServiceMediaBrowser {
+public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalPlayback.IOnMediaPlayerPreparedListener {
     public static final String ERROR_CODE__MEDIA_NETWORK = "1";
 
     public static final String MEDIA_ID__ROOT = "mediaId://servicePlayback/";
@@ -129,6 +130,13 @@ public class ServicePlayback extends ServiceMediaBrowser {
     }
 
     @Override
+    protected IPlayback createPlayback() {
+        CustomLocalPlayback customLocalPlayback = new CustomLocalPlayback(this, this.isOnlineStreaming());
+        customLocalPlayback.setOnMediaPlayerPreparedListener(this);
+        return customLocalPlayback;
+    }
+
+    @Override
     protected void processPlayFromMediaIdRequest(String pMediaId, Bundle pExtras) {
         this.setPlayingQueue(this.mActiveQueue);
         super.processPlayFromMediaIdRequest(pMediaId, pExtras);
@@ -148,7 +156,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
         int currentIndexOnQueue = this.getCurrentIndexOnQueue();
         List<CustomQueueItem> playingQueue = this.getPlayingQueue();
         IPlayback playback = this.getPlayback();
-        if (this.isIndexPlayable(this.getCurrentIndexOnQueue(), this.getPlayingQueue())) {
+        if (this.isIndexPlayable(currentIndexOnQueue, playingQueue)) {
             CustomQueueItem customQueueItem = playingQueue.get(currentIndexOnQueue);
             if (UtilsString.isEmpty(customQueueItem.getStreamUrl())) {
                 MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
@@ -162,10 +170,11 @@ public class ServicePlayback extends ServiceMediaBrowser {
                 }
 
                 playback.setState(PlaybackStateCompat.STATE_BUFFERING);
+                this.updateMetadata();
             } else {
+                this.updateMetadata();
                 playback.play(customQueueItem);
             }
-            this.updateMetadata();
         }
     }
 
@@ -184,7 +193,8 @@ public class ServicePlayback extends ServiceMediaBrowser {
         }
         this.getMediaSession().setMetadata(mediaMetadata);
 
-        if (mediaMetadata.getDescription().getIconBitmap() == null && mediaMetadata.getDescription().getIconUri() != null) {
+        MediaDescriptionCompat mediaDescription = mediaMetadata.getDescription();
+        if (mediaDescription.getIconBitmap() == null && mediaDescription.getIconUri() != null) {
             this.fetchArt(customQueueItem);
         }
     }
@@ -225,6 +235,17 @@ public class ServicePlayback extends ServiceMediaBrowser {
             this.loadChildrenPlaylist(playlistId, pResult);
             return;
         }
+    }
+
+    @Override
+    public void onPrepared() {
+        CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
+        MediaMetadataCompat oldMediaMetadata = customQueueItem.getMediaMetadata();
+        MediaMetadataCompat newMediaMetadata = new MediaMetadataCompat.Builder(oldMediaMetadata)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, this.getPlayback().getDuration())
+                .build();
+        customQueueItem.setMediaMetadata(newMediaMetadata);
+        this.updateMetadata();
     }
 
     private void loadChildrenRoot(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
@@ -451,6 +472,7 @@ public class ServicePlayback extends ServiceMediaBrowser {
     private void onRxFetchNext(String pStreamUrl) {
         CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
         customQueueItem.setStreamUrl(pStreamUrl);
+        this.updateMetadata();
         this.getPlayback().play(customQueueItem);
     }
 

@@ -7,7 +7,7 @@
         style="@style/Container.WrapContent.Vertical" >
 
         <TextView
-            android:id="@+id/lblTrackTitle"
+            android:id="@+id/lblTrackName"
             style="@style/TextView.PlaybackControls.TrackTitle" />
 
     </RelativeLayout>

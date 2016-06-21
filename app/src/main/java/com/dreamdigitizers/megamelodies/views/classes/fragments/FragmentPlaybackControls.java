@@ -2,9 +2,6 @@ package com.dreamdigitizers.megamelodies.views.classes.fragments;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.media.MediaMetadata;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
@@ -21,11 +18,7 @@ import android.widget.TextView;
 
 import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.FragmentBase;
 import com.dreamdigitizers.megamelodies.R;
-import com.dreamdigitizers.megamelodies.Share;
-import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,7 +28,7 @@ public class FragmentPlaybackControls extends FragmentBase {
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
     private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
 
-    private TextView mLblTrackTitle;
+    private TextView mLblTrackName;
     private TextView mLblDurationStart;
     private SeekBar mSkbTrackProgress;
     private TextView mLblDurationEnd;
@@ -73,7 +66,7 @@ public class FragmentPlaybackControls extends FragmentBase {
 
     @Override
     protected void retrieveScreenItems(View pView) {
-        this.mLblTrackTitle = (TextView) pView.findViewById(R.id.lblTrackTitle);
+        this.mLblTrackName = (TextView) pView.findViewById(R.id.lblTrackName);
         this.mLblDurationStart = (TextView) pView.findViewById(R.id.lblDurationStart);
         this.mSkbTrackProgress = (SeekBar) pView.findViewById(R.id.skbCurrentPosition);
         this.mLblDurationEnd = (TextView) pView.findViewById(R.id.lblDurationEnd);
@@ -89,7 +82,7 @@ public class FragmentPlaybackControls extends FragmentBase {
 
     @Override
     protected void mapInformationToScreenItems(View pView) {
-        //this.mLblTrackTitle.setSelected(true);
+        //this.mLblTrackName.setSelected(true);
 
         this.mSkbTrackProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -140,14 +133,6 @@ public class FragmentPlaybackControls extends FragmentBase {
     }
 
     public void onPlaybackStateChanged(PlaybackStateCompat pPlaybackState) {
-        this.updatePlaybackState(pPlaybackState);
-    }
-
-    public void onMetadataChanged(MediaMetadataCompat pMediaMetadata) {
-        this.updateMediaMetadata(pMediaMetadata);
-    }
-
-    private void updatePlaybackState(PlaybackStateCompat pPlaybackState) {
         this.mLastPlaybackState = pPlaybackState;
 
         long currentPosition = this.mLastPlaybackState.getPosition();
@@ -189,16 +174,15 @@ public class FragmentPlaybackControls extends FragmentBase {
         }
     }
 
-    private void updateMediaMetadata(MediaMetadataCompat pMediaMetadata) {
-        Serializable track = pMediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-        if (track == null && Build.VERSION.SDK_INT >= 21) {
-            track = Share.getCurrentTrack();
-        }
-        //int duration = track.getDuration();
+    public void onMetadataChanged(MediaMetadataCompat pMediaMetadata) {
+        CharSequence trackName = pMediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_TITLE);
+        int duration = (int) pMediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
 
-        //this.mLblTrackTitle.setText(track.getTitle());
-        //this.mSkbTrackProgress.setMax(duration);
-        //this.mLblDurationEnd.setText(DateUtils.formatElapsedTime(duration / 1000));
+        this.mLblTrackName.setText(trackName);
+        if (duration > 0) {
+            this.mSkbTrackProgress.setMax(duration);
+            this.mLblDurationEnd.setText(DateUtils.formatElapsedTime(duration / 1000));
+        }
     }
 
     private void scheduleSeekBarUpdate() {
