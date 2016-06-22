@@ -10,16 +10,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.models.Playlist;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 
+import java.io.Serializable;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistDialog.DialogPlaylistViewHolder> {
     private Track mTrack;
+    private String mId;
     private MediaBrowserCompat.MediaItem mMediaItemTrack;
     private List<MediaBrowserCompat.MediaItem> mPlaylists;
 
@@ -27,7 +33,15 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
 
     public AdapterPlaylistDialog(MediaBrowserCompat.MediaItem pTrack, List<MediaBrowserCompat.MediaItem> pPlaylists, IOnAddRemoveButtonClickListener pListener) {
         this.mMediaItemTrack = pTrack;
-        this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);;
+        this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+        Serializable originalTrack = this.mTrack.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
+            this.mId = nctSong.getId();
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
+            this.mId = zingSong.getId();
+        }
         this.mPlaylists = pPlaylists;
         this.mListener = pListener;
     }
@@ -42,21 +56,30 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
     public void onBindViewHolder(DialogPlaylistViewHolder pHolder, int pPosition) {
         MediaBrowserCompat.MediaItem mediaItem = this.mPlaylists.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        Playlist playlist = (Playlist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
             pHolder.mImgMediaItem.setImageBitmap(bitmap);
         }
 
-        //pHolder.mLblName.setText(playlist.getTitle());
+        pHolder.mLblName.setText(playlist.getName());
 
         boolean isAdded = false;
-        /*for (Track track : playlist.getTracks()) {
-            if (track.getId() == this.mTrack.getId()) {
+        for (Track track : playlist.getTracks()) {
+            String id = null;
+            Serializable originalTrack = track.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                id = nctSong.getId();
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                id = zingSong.getId();
+            }
+            if (UtilsString.equals(id, this.mId)) {
                 isAdded = true;
                 break;
             }
-        }*/
+        }
         if (isAdded) {
             pHolder.mBtnAddToRemoveFromPlaylist.setText(R.string.btn__remove);
         } else {

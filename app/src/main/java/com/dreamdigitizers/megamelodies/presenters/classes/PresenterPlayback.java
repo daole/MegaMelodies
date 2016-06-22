@@ -11,13 +11,18 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.models.Playlist;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperNctSong;
+import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperPlaylist;
+import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperPlaylistSong;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperZingSong;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Subscriber;
 import rx.Subscription;
@@ -174,6 +179,17 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
     }
 
     @Override
+    public List<Playlist> retrieveAllPlaylists() {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            List<Playlist> playlists = HelperPlaylist.retrieveAll(context);
+            return playlists;
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
     public void checkFavoriteTrack(Track pTrack) {
         IViewPlayback view = this.getView();
         if (view != null) {
@@ -221,6 +237,58 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
             } else if (originalTrack instanceof ZingSong) {
                 ZingSong zingSong = (ZingSong) originalTrack;
                 HelperZingSong.unfavorite(context, zingSong);
+            }
+        }
+    }
+
+    @Override
+    public void createPlaylist(Track pTrack, String pPlaylistName) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            HelperPlaylist.insert(context, pTrack, pPlaylistName);
+        }
+    }
+
+    @Override
+    public void deletePlaylist(Playlist pPlaylist) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            HelperPlaylist.delete(context, pPlaylist);
+        }
+    }
+
+    @Override
+    public void addToPlaylist(Track pTrack, Playlist pPlaylist) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            int playlistId = pPlaylist.getId();
+            Serializable originalTrack = pTrack.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                HelperPlaylistSong.insert(context, playlistId, nctSong);
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                HelperPlaylistSong.insert(context, playlistId, zingSong);
+            }
+        }
+    }
+
+    @Override
+    public void removeFromPlaylist(Track pTrack, Playlist pPlaylist) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            int playlistId = pPlaylist.getId();
+            Serializable originalTrack = pTrack.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                HelperPlaylistSong.delete(context, playlistId, nctSong);
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                HelperPlaylistSong.delete(context, playlistId, zingSong);
             }
         }
     }

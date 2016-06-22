@@ -10,8 +10,7 @@ public class HelperNctSinger {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableNctSinger.COLUMN_NAME__NCT_SONG_ID, pNctSongId);
         contentValues.put(TableNctSinger.COLUMN_NAME__NAME, pNctSinger.getName());
-        contentValues.put(TableNctSinger.COLUMN_NAME__IMG, pNctSinger.getImg());
         contentValues.put(TableNctSinger.COLUMN_NAME__URL, pNctSinger.getUrl());
-        return  contentValues;
+        return contentValues;
     }
 }

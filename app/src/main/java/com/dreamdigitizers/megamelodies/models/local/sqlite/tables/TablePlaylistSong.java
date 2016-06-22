@@ -22,8 +22,10 @@ public class TablePlaylistSong extends TableBase {
     private static final String STATEMENT_CREATE = "CREATE TABLE `" + TablePlaylistSong.TABLE_NAME + "` ("
             + "`" + TablePlaylistSong.COLUMN_NAME___ID + "` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,"
             + "`" + TablePlaylistSong.COLUMN_NAME__PLAYLIST_ID + "` INTEGER NOT NULL,"
-            + "`" + TablePlaylistSong.COLUMN_NAME__NCT_SONG_ID + "` TEXT UNIQUE,"
-            + "`" + TablePlaylistSong.COLUMN_NAME__ZING_SONG_ID + "` TEXT UNIQUE"
+            + "`" + TablePlaylistSong.COLUMN_NAME__NCT_SONG_ID + "` TEXT,"
+            + "`" + TablePlaylistSong.COLUMN_NAME__ZING_SONG_ID + "` TEXT,"
+            + "UNIQUE (`" + TablePlaylistSong.COLUMN_NAME__PLAYLIST_ID + "`, `" + TablePlaylistSong.COLUMN_NAME__NCT_SONG_ID + "`),"
+            + "UNIQUE (`" + TablePlaylistSong.COLUMN_NAME__PLAYLIST_ID + "`, `" + TablePlaylistSong.COLUMN_NAME__ZING_SONG_ID + "`)"
             + ");";
 
     private static final String STATEMENT_UPGRADE = "";

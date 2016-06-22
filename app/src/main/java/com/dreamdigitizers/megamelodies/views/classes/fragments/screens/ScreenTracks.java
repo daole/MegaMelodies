@@ -82,7 +82,7 @@ public abstract class ScreenTracks<P extends IPresenterTracks> extends ScreenMed
     }
 
     @Override
-    public void onOkButtonClicked(MediaBrowserCompat.MediaItem pTrack, String pPlaylistTitle) {
-        this.mPresenter.createPlaylist(pTrack, pPlaylistTitle);
+    public void onOkButtonClicked(MediaBrowserCompat.MediaItem pTrack, String pPlaylistName) {
+        this.mPresenter.createPlaylist(pTrack, pPlaylistName);
     }
 }

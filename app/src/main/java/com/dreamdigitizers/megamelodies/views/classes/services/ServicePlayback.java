@@ -25,8 +25,10 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingData;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
+import com.dreamdigitizers.megamelodies.models.Playlist;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
@@ -45,10 +47,14 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     public static final String MEDIA_ID__ROOT = "mediaId://servicePlayback/";
     private static final String MEDIA_ID__SEARCH_ROOT = ServicePlayback.MEDIA_ID__ROOT + "search";
-    public static final String MEDIA_ID__SEARCH = ServicePlayback.MEDIA_ID__SEARCH_ROOT + "?serverId=%d&query=%s&offset=%d&pageSize=%d&type=%s&num=%d";
-    public static final String MEDIA_ID__FAVORITES = ServicePlayback.MEDIA_ID__ROOT + "favorites";
-    public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__ROOT + "playlists";
-    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__ROOT + "playlist";
+    public static final String MEDIA_ID__SEARCH = ServicePlayback.MEDIA_ID__SEARCH_ROOT + "?serverId=%s&query=%s&offset=%s&pageSize=%s&type=%s&num=%s";
+    private static final String MEDIA_ID__FAVORITES_ROOT = ServicePlayback.MEDIA_ID__ROOT + "favorites";
+    public static final String MEDIA_ID__FAVORITES = ServicePlayback.MEDIA_ID__FAVORITES_ROOT + "?offset=%d&pageSize=%d";
+    public static final String MEDIA_ID__PLAYLISTS_ALL = ServicePlayback.MEDIA_ID__ROOT + "playlistsAll";
+    private static final String MEDIA_ID__PLAYLISTS_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlists";
+    public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__PLAYLISTS_ROOT + "?offset=%d&pageSize=%d";
+    private static final String MEDIA_ID__PLAYLIST_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlist";
+    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__PLAYLIST_ROOT + "?offset=%d&pageSize=%d";
 
     public static final String CUSTOM_ACTION__FAVORITE = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.FAVORITE";
     public static final String CUSTOM_ACTION__CREATE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.CREATE_PLAYLIST";
@@ -58,7 +64,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     private static final String EVENT_URI__ROOT = "mediaEvent://servicePlayback?action=%s";
     private static final String EVENT_URI__FAVORITE = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&userFavorite=%s";
-    private static final String EVENT_URI__CREATE_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&playlistId=%s";
+    private static final String EVENT_URI__CREATE_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s";
     private static final String EVENT_URI__DELETE_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&playlistId=%s";
     private static final String EVENT_URI__ADD_TO_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&playlistId=%s";
     private static final String EVENT_URI__REMOVE_FROM_PLAYLIST = ServicePlayback.EVENT_URI__ROOT + "&trackId=%s&playlistId=%s";
@@ -77,13 +83,11 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private static final int ACTIVE_MODE__PLAYLIST = 3;
 
     private Result mSearchResult;
-    private Result mFavoritesResult;
-    private Result mPlaylistsResult;
-    private Result mPlaylistResult;
 
     private List<CustomQueueItem> mActiveQueue;
     private List<CustomQueueItem> mSearchQueue;
     private List<CustomQueueItem> mFavoritesQueue;
+    private List<Playlist> mPlaylists;
 
     private List<MediaBrowserCompat.MediaItem> mSearchMediaItems;
     private List<MediaBrowserCompat.MediaItem> mFavoritesMediaItems;
@@ -112,6 +116,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
         this.mSearchQueue = new ArrayList<>();
         this.mFavoritesQueue = new ArrayList<>();
+        this.mPlaylists = new ArrayList<>();
 
         this.mSearchMediaItems = new ArrayList<>();
         this.mFavoritesMediaItems = new ArrayList<>();
@@ -246,23 +251,18 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     @Override
     public void onLoadChildren(String pParentId, Result<List<MediaBrowserCompat.MediaItem>> pResult) {
         Uri uri = Uri.parse(pParentId);
-
         if (pParentId.startsWith(ServicePlayback.MEDIA_ID__SEARCH_ROOT)) {
             this.loadChildrenSearch(pResult, uri);
-        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__FAVORITES)) {
-            this.loadChildrenFavorites(pResult);
-        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLISTS)) {
-
-        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLIST)) {
-            this.loadChildrenPlaylists(pResult);
+        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__FAVORITES_ROOT)) {
+            this.loadChildrenFavorites(pResult, uri);
+        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLISTS_ALL)) {
+            this.loadChildrenPlaylistsAll(pResult);
+        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLISTS_ROOT)) {
+            this.loadChildrenPlaylists(pResult, uri);
+        } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLIST_ROOT)) {
+            this.loadChildrenPlaylist(pResult, uri);
         } else if (pParentId.startsWith(ServicePlayback.MEDIA_ID__ROOT)) {
             this.loadChildrenRoot(pResult);
-        }
-
-        if (pParentId.startsWith(ServicePlayback.MEDIA_ID__PLAYLIST)) {
-            String playlistId = pParentId.substring(ServicePlayback.MEDIA_ID__PLAYLIST.length());
-            this.loadChildrenPlaylist(playlistId, pResult);
-            return;
         }
     }
 
@@ -286,13 +286,13 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 R.string.media_description_subtitle__search));
 
         mediaItems.add(this.buildChildrenRootMediaItem(
-                ServicePlayback.MEDIA_ID__FAVORITES,
+                ServicePlayback.MEDIA_ID__FAVORITES_ROOT,
                 R.string.media_description_title__favorite,
                 ServicePlayback.URI__DRAWABLE_ICON_FAVORITE,
                 R.string.media_description_subtitle__favorite));
 
         mediaItems.add(this.buildChildrenRootMediaItem(
-                ServicePlayback.MEDIA_ID__PLAYLIST,
+                ServicePlayback.MEDIA_ID__PLAYLIST_ROOT,
                 R.string.media_description_title__playlist,
                 ServicePlayback.URI__DRAWABLE_ICON_PLAYLIST,
                 R.string.media_description_subtitle__playlist));
@@ -368,15 +368,26 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         }
     }
 
-    private void loadChildrenFavorites(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
+    private void loadChildrenFavorites(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
 
     }
 
-    private void loadChildrenPlaylists(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
+    private void loadChildrenPlaylistsAll(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
+        List<Playlist> playlists = this.mPresenter.retrieveAllPlaylists();
+        this.mPlaylists.clear();
+        this.mPlaylists.addAll(playlists);
+        this.mIsPlaylistsMore = false;
+        List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(this.mPlaylists);
+        this.mPlaylistsMediaItems.clear();
+        this.mPlaylistsMediaItems.addAll(mediaItems);
+        pResult.sendResult(mediaItems);
+    }
+
+    private void loadChildrenPlaylists(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
 
     }
 
-    private void loadChildrenPlaylist(String pPlaylistId, Result<List<MediaBrowserCompat.MediaItem>> pResult) {
+    private void loadChildrenPlaylist(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
 
     }
 
@@ -462,6 +473,20 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         return mediaItems;
     }
 
+    private List<MediaBrowserCompat.MediaItem> buildMediaItemList(List<Playlist> pPlaylists) {
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+
+        for (Playlist playlist : pPlaylists) {
+            MediaMetadataCompat mediaMetadata = MediaMetadataBuilder.build(playlist);
+            MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
+
+            MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
+            mediaItems.add(mediaItem);
+        }
+
+        return  mediaItems;
+    }
+
     private void processFavoriteRequest(Bundle pExtras) {
         Track track = (Track) pExtras.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
         if (track.isFavorite()) {
@@ -475,33 +500,97 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     }
 
     private void processCreatePlaylistRequest(Bundle pExtras) {
-
+        Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
+        String playlistName = pExtras.getString(Constants.BUNDLE_KEY__PLAYLIST_NAME);
+        this.mPresenter.createPlaylist(track, playlistName);
+        this.sendCreatePlaylistActionResult(track);
     }
 
     private void processDeletePlaylistRequest(Bundle pExtras) {
-
+        Playlist playlist = (Playlist) pExtras.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        this.mPresenter.deletePlaylist(playlist);
+        this.sendDeletePlaylistActionResult(playlist);
     }
 
     private void processAddToPlaylistRequest(Bundle pExtras) {
-
+        Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
+        Playlist playlist = (Playlist) pExtras.getSerializable(Constants.BUNDLE_KEY__PLAYLIST);
+        this.mPresenter.addToPlaylist(track, playlist);
+        this.sendAddToPlaylistActionResult(track, playlist);
     }
 
     private void processRemoveFromPlaylistRequest(Bundle pExtras) {
-
+        Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
+        Playlist playlist = (Playlist) pExtras.getSerializable(Constants.BUNDLE_KEY__PLAYLIST);
+        this.mPresenter.removeFromPlaylist(track, playlist);
+        this.sendRemoveFromPlaylistActionResult(track, playlist);
     }
 
     private void sendFavoriteActionResult(Track pTrack) {
-        String id = null;
+        String trackId = null;
         Serializable originalTrack = pTrack.getOriginalTrack();
         if (originalTrack instanceof NctSong) {
             NctSong nctSong = (NctSong) originalTrack;
-            id = nctSong.getId();
+            trackId = nctSong.getId();
         } else if (originalTrack instanceof ZingSong) {
             ZingSong zingSong = (ZingSong) originalTrack;
-            id = zingSong.getId();
+            trackId = zingSong.getId();
         }
-        if (!UtilsString.isEmpty(id)) {
-            String eventAction = String.format(ServicePlayback.EVENT_URI__FAVORITE, ServicePlayback.CUSTOM_ACTION__FAVORITE, id, pTrack.isFavorite());
+        if (!UtilsString.isEmpty(trackId)) {
+            String eventAction = String.format(ServicePlayback.EVENT_URI__FAVORITE, ServicePlayback.CUSTOM_ACTION__FAVORITE, trackId, pTrack.isFavorite());
+            this.getMediaSession().sendSessionEvent(eventAction, null);
+        }
+    }
+
+    private void sendCreatePlaylistActionResult(Track pTrack) {
+        String trackId = null;
+        Serializable originalTrack = pTrack.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
+            trackId = nctSong.getId();
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
+            trackId = zingSong.getId();
+        }
+        if (!UtilsString.isEmpty(trackId)) {
+            String eventAction = String.format(ServicePlayback.EVENT_URI__CREATE_PLAYLIST, ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, trackId);
+            this.getMediaSession().sendSessionEvent(eventAction, null);
+        }
+    }
+
+    private void sendDeletePlaylistActionResult(Playlist pPlaylist) {
+        String eventAction = String.format(ServicePlayback.EVENT_URI__DELETE_PLAYLIST, ServicePlayback.CUSTOM_ACTION__DELETE_PLAYLIST, pPlaylist.getId());
+        this.getMediaSession().sendSessionEvent(eventAction, null);
+    }
+
+    private void sendAddToPlaylistActionResult(Track pTrack, Playlist pPlaylist) {
+        String trackId = null;
+        Serializable originalTrack = pTrack.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
+            trackId = nctSong.getId();
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
+            trackId = zingSong.getId();
+        }
+        if (!UtilsString.isEmpty(trackId)) {
+            String eventAction = String.format(ServicePlayback.EVENT_URI__ADD_TO_PLAYLIST, ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST, trackId, pPlaylist.getId());
+            this.getMediaSession().sendSessionEvent(eventAction, null);
+        }
+    }
+
+    private void sendRemoveFromPlaylistActionResult(Track pTrack, Playlist pPlaylist) {
+        String trackId = null;
+        Serializable originalTrack = pTrack.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
+            trackId = nctSong.getId();
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
+            trackId = zingSong.getId();
+        }
+        if (!UtilsString.isEmpty(trackId)) {
+            String eventAction = String.format(ServicePlayback.EVENT_URI__REMOVE_FROM_PLAYLIST, ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST, trackId, pPlaylist.getId());
             this.getMediaSession().sendSessionEvent(eventAction, null);
         }
     }
@@ -564,9 +653,6 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     private void onRxError(Throwable pError, UtilsDialog.IRetryAction pRetryAction) {
         this.mSearchResult = null;
-        this.mFavoritesResult = null;
-        this.mPlaylistsResult = null;
-        this.mPlaylistResult = null;
         this.updatePlaybackState(ServicePlayback.ERROR_CODE__MEDIA_NETWORK);
         pError.printStackTrace();
     }

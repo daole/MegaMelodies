@@ -10,12 +10,14 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSinger;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.models.Playlist;
 import com.dreamdigitizers.megamelodies.models.Track;
 
 import java.util.List;
 
 public class MediaMetadataBuilder {
     public static final String BUNDLE_KEY__TRACK = "track";
+    public static final String BUNDLE_KEY__PLAYLIST = "playlist";
 
     public static MediaMetadataCompat build(NctSong pNctSong) {
         Track track = new Track();
@@ -53,6 +55,16 @@ public class MediaMetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, artist)
                 .build();
         mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
+
+        return mediaMetadata;
+    }
+
+    public static MediaMetadataCompat build(Playlist pPlaylist) {
+        MediaMetadataCompat mediaMetadata = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, Integer.toString(pPlaylist.getId()))
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, pPlaylist.getName())
+                .build();
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST, pPlaylist);
 
         return mediaMetadata;
     }
@@ -102,8 +114,9 @@ public class MediaMetadataBuilder {
         Bundle mediaMetadataBundle = pMediaMetadata.getBundle();
         if (mediaMetadataBundle.containsKey(MediaMetadataBuilder.BUNDLE_KEY__TRACK)) {
             bundle.putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, mediaMetadataBundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK));
+        } else if (mediaMetadataBundle.containsKey(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST)) {
+            bundle.putSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST, mediaMetadataBundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST));
         }
-
         String artUri = pMediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
         MediaDescriptionCompat.Builder mediaDescriptionBuilder = new MediaDescriptionCompat.Builder();
         mediaDescriptionBuilder.setMediaId(pMediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));

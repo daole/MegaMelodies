@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSinger;
@@ -22,14 +21,16 @@ import java.util.List;
 
 public class HelperNctSong {
     public static Track retrieveById(Context pContext, String pId) {
-        String selection = TableNctSong.COLUMN_NAME___ID + " = ?";
+        String[] projection = new String[0];
+        projection = TableNctSong.getColumnsForJoin().toArray(projection);
+        String selection = TableNctSong.TABLE_NAME + "." + TableNctSong.COLUMN_NAME___ID + " = ?";
         String[] selectionArgs = new String[] { pId };
-        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, null, selection, selectionArgs, null);
-        List<Track> list = HelperNctSong.fetchData(cursor);
-        if (list.isEmpty()) {
+        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, projection, selection, selectionArgs, null);
+        List<Track> tracks = HelperNctSong.fetchData(cursor);
+        if (tracks.isEmpty()) {
             return null;
         } else {
-            return list.get(0);
+            return tracks.get(0);
         }
     }
 
@@ -86,7 +87,7 @@ public class HelperNctSong {
         contentValues.put(TableNctSong.COLUMN_NAME__NAME, pNctSong.getName());
         contentValues.put(TableNctSong.COLUMN_NAME__URL, pNctSong.getUrl());
         contentValues.put(TableNctSong.COLUMN_NAME__IS_FAVORITE, pIsFavorite);
-        return  contentValues;
+        return contentValues;
     }
 
     public static List<Track> fetchData(Cursor pCursor) {
@@ -95,7 +96,7 @@ public class HelperNctSong {
         if (pCursor.moveToFirst()) {
             do {
                 Track track;
-                String id = pCursor.getString(pCursor.getColumnIndex(TableNctSong.COLUMN_NAME___ID));
+                String id = pCursor.getString(pCursor.getColumnIndex(TableNctSong.COLUMN_NAME_ALIAS___ID));
                 if (hashMap.containsKey(id)) {
                     track = hashMap.get(id);
                 } else {
@@ -117,19 +118,17 @@ public class HelperNctSong {
                 }
 
                 String name = pCursor.getString(pCursor.getColumnIndex(TableNctSinger.COLUMN_NAME_ALIAS__NAME));
-                String img = pCursor.getString(pCursor.getColumnIndex(TableNctSinger.COLUMN_NAME_ALIAS__IMG));
                 String url = pCursor.getString(pCursor.getColumnIndex(TableNctSinger.COLUMN_NAME_ALIAS__URL));
 
                 NctSinger nctSinger = new NctSinger();
                 nctSinger.setName(name);
-                nctSinger.setImg(img);
                 nctSinger.setUrl(url);
 
                 ((NctSong) track.getOriginalTrack()).getSingers().add(nctSinger);
             } while (pCursor.moveToNext());
         }
 
-        List<Track> list = new ArrayList<>(hashMap.values());
-        return list;
+        List<Track> tracks = new ArrayList<>(hashMap.values());
+        return tracks;
     }
 }

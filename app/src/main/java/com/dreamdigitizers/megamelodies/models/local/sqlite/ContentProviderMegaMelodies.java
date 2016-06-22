@@ -12,14 +12,12 @@ import com.dreamdigitizers.androidbaselibrary.models.local.sqlite.ContentProvide
 import com.dreamdigitizers.androidbaselibrary.models.local.sqlite.dal.DalBase;
 import com.dreamdigitizers.androidbaselibrary.models.local.sqlite.tables.TableBase;
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
-import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalFavorite;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalNctSinger;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalNctSong;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalPlaylist;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalPlaylistSong;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.dal.DalZingSong;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperSQLiteOpen;
-import com.dreamdigitizers.megamelodies.models.local.sqlite.tables.TableFavorite;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.tables.TableNctSinger;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.tables.TableNctSong;
 import com.dreamdigitizers.megamelodies.models.local.sqlite.tables.TablePlaylist;
@@ -32,32 +30,26 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
     private static final String DATABASE__NAME = "mega_melodies.db";
     private static final int DATABASE__VERSION = 1;
 
-    private static final int FAVORITES = 0;
-    private static final int FAVORITE = 1;
-    private static final int NCT_SINGERS = 10;
-    private static final int NCT_SINGER = 11;
-    private static final int NCT_SONGS = 20;
-    private static final int NCT_SONG = 21;
-    private static final int PLAYLISTS = 30;
-    private static final int PLAYLIST = 31;
-    private static final int PLAYLIST_SONGS = 40;
-    private static final int PLAYLIST_SONG = 41;
-    private static final int ZING_SONGS = 50;
-    private static final int ZING_SONG = 51;
+    private static final int NCT_SINGERS = 0;
+    private static final int NCT_SINGER = 1;
+    private static final int NCT_SONGS = 10;
+    private static final int NCT_SONG = 11;
+    private static final int PLAYLISTS = 20;
+    private static final int PLAYLIST = 21;
+    private static final int PLAYLIST_SONGS = 30;
+    private static final int PLAYLIST_SONG = 31;
+    private static final int ZING_SONGS = 40;
+    private static final int ZING_SONG = 41;
 
     private static final String SCHEME = "content://";
 
     public static final String AUTHORITY = "com.dreamdigitizers.megamelodies.ContentProviderMegaMelodies";
 
-    public static final Uri CONTENT_URI__FAVORITE = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TableFavorite.TABLE_NAME);
     public static final Uri CONTENT_URI__NCT_SINGER = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TableNctSinger.TABLE_NAME);
     public static final Uri CONTENT_URI__NCT_SONG = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TableNctSong.TABLE_NAME);
     public static final Uri CONTENT_URI__PLAYLIST = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TablePlaylist.TABLE_NAME);
     public static final Uri CONTENT_URI__PLAYLIST_SONG = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TablePlaylistSong.TABLE_NAME);
     public static final Uri CONTENT_URI__ZING_SONG = Uri.parse(ContentProviderMegaMelodies.SCHEME + ContentProviderMegaMelodies.AUTHORITY + "/" + TableZingSong.TABLE_NAME);
-
-    public static final String CONTENT_TYPE__FAVORITE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + ContentProviderMegaMelodies.AUTHORITY + "." + TableFavorite.TABLE_NAME;
-    public static final String CONTENT_ITEM_TYPE__FAVORITE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + ContentProviderMegaMelodies.AUTHORITY + "." + TableFavorite.TABLE_NAME;
 
     public static final String CONTENT_TYPE__NCT_SINGER = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + ContentProviderMegaMelodies.AUTHORITY + "." + TableNctSinger.TABLE_NAME;
     public static final String CONTENT_ITEM_TYPE__NCT_SINGER = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + ContentProviderMegaMelodies.AUTHORITY + "." + TableNctSinger.TABLE_NAME;
@@ -76,9 +68,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-        ContentProviderMegaMelodies.uriMatcher.addURI(ContentProviderMegaMelodies.AUTHORITY, TableFavorite.TABLE_NAME, ContentProviderMegaMelodies.FAVORITES);
-        ContentProviderMegaMelodies.uriMatcher.addURI(ContentProviderMegaMelodies.AUTHORITY, TableFavorite.TABLE_NAME + "/#", ContentProviderMegaMelodies.FAVORITE);
-
         ContentProviderMegaMelodies.uriMatcher.addURI(ContentProviderMegaMelodies.AUTHORITY, TableNctSinger.TABLE_NAME, ContentProviderMegaMelodies.NCT_SINGERS);
         ContentProviderMegaMelodies.uriMatcher.addURI(ContentProviderMegaMelodies.AUTHORITY, TableNctSinger.TABLE_NAME + "/#", ContentProviderMegaMelodies.NCT_SINGER);
 
@@ -106,12 +95,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
         int uriType = ContentProviderMegaMelodies.uriMatcher.match(pUri);
         switch (uriType) {
-            case ContentProviderMegaMelodies.FAVORITES:
-                type = ContentProviderMegaMelodies.CONTENT_TYPE__FAVORITE;
-                break;
-            case ContentProviderMegaMelodies.FAVORITE:
-                type = ContentProviderMegaMelodies.CONTENT_ITEM_TYPE__FAVORITE;
-                break;
             case ContentProviderMegaMelodies.NCT_SINGERS:
                 type = ContentProviderMegaMelodies.CONTENT_TYPE__NCT_SINGER;
                 break;
@@ -157,11 +140,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
         int uriType = ContentProviderMegaMelodies.uriMatcher.match(pUri);
         switch (uriType) {
-            case ContentProviderMegaMelodies.FAVORITE:
-                id = pUri.getLastPathSegment();
-            case ContentProviderMegaMelodies.FAVORITES:
-                dalBase = new DalFavorite(this.mHelperSQLiteDatabase);
-                break;
             case ContentProviderMegaMelodies.NCT_SINGER:
                 id = pUri.getLastPathSegment();
             case ContentProviderMegaMelodies.NCT_SINGERS:
@@ -214,9 +192,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
         int uriType = ContentProviderMegaMelodies.uriMatcher.match(pUri);
         switch (uriType) {
-            case ContentProviderMegaMelodies.FAVORITES:
-                DalBase = new DalFavorite(this.mHelperSQLiteDatabase);
-                break;
             case ContentProviderMegaMelodies.NCT_SINGERS:
                 DalBase = new DalNctSinger(this.mHelperSQLiteDatabase);
                 break;
@@ -253,11 +228,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
         int uriType = ContentProviderMegaMelodies.uriMatcher.match(pUri);
         switch (uriType) {
-            case ContentProviderMegaMelodies.FAVORITE:
-                id = pUri.getLastPathSegment();
-            case ContentProviderMegaMelodies.FAVORITES:
-                dalBase = new DalFavorite(this.mHelperSQLiteDatabase);
-                break;
             case ContentProviderMegaMelodies.NCT_SINGER:
                 id = pUri.getLastPathSegment();
             case ContentProviderMegaMelodies.NCT_SINGERS:
@@ -311,11 +281,6 @@ public class ContentProviderMegaMelodies extends ContentProviderBase {
 
         int uriType = ContentProviderMegaMelodies.uriMatcher.match(pUri);
         switch (uriType) {
-            case ContentProviderMegaMelodies.FAVORITE:
-                id = pUri.getLastPathSegment();
-            case ContentProviderMegaMelodies.FAVORITES:
-                dalBase = new DalFavorite(this.mHelperSQLiteDatabase);
-                break;
             case ContentProviderMegaMelodies.NCT_SINGER:
                 id = pUri.getLastPathSegment();
             case ContentProviderMegaMelodies.NCT_SINGERS:

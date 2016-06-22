@@ -18,17 +18,18 @@ public class HelperZingSong {
         String selection = TableZingSong.COLUMN_NAME___ID + " = ?";
         String[] selectionArgs = new String[] { pId };
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, null, selection, selectionArgs, null);
-        List<Track> list = HelperZingSong.fetchData(cursor);
-        if (list.isEmpty()) {
+        List<Track> tracks = HelperZingSong.fetchData(cursor);
+        if (tracks.isEmpty()) {
             return null;
         } else {
-            return list.get(0);
+            return tracks.get(0);
         }
     }
 
     public static Uri insert(Context pContext, ZingSong pZingSong, boolean pIsFavorite) {
         ContentValues contentValues = HelperZingSong.buildContentValues(pZingSong, pIsFavorite);
-        return pContext.getContentResolver().insert(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, contentValues);
+        Uri uri = pContext.getContentResolver().insert(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, contentValues);
+        return uri;
     }
 
     public static void favorite(Context pContext, ZingSong pZingSong) {
@@ -49,7 +50,6 @@ public class HelperZingSong {
         String selection = TableZingSong.COLUMN_NAME___ID + " = ?";
         String[] selectionArgs = new String[] { pZingSong.getId() };
         pContext.getContentResolver().update(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, contentValues, selection, selectionArgs);
-
     }
 
     public static ContentValues buildContentValues(ZingSong pZingSong, boolean pIsFavorite) {
@@ -58,7 +58,7 @@ public class HelperZingSong {
         contentValues.put(TableZingSong.COLUMN_NAME__NAME, pZingSong.getName());
         contentValues.put(TableZingSong.COLUMN_NAME__ARTIST, pZingSong.getArtist());
         contentValues.put(TableZingSong.COLUMN_NAME__IS_FAVORITE, pIsFavorite);
-        return  contentValues;
+        return contentValues;
     }
 
     public static List<Track> fetchData(Cursor pCursor) {

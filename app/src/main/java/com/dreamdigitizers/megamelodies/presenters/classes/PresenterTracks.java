@@ -9,6 +9,7 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.models.Playlist;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterTracks;
 import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
@@ -52,7 +53,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
 
     @Override
     protected void onChildrenLoaded(String pParentId, List<MediaBrowserCompat.MediaItem> pChildren) {
-        if (UtilsString.equals(pParentId, ServicePlayback.MEDIA_ID__PLAYLISTS)) {
+        if (UtilsString.equals(pParentId, ServicePlayback.MEDIA_ID__PLAYLISTS_ALL)) {
             V view = this.getView();
             if (view != null) {
                 view.hideNetworkProgress();
@@ -68,7 +69,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
         V view = this.getView();
         if (view != null) {
             view.showNetworkProgress();
-            this.load(ServicePlayback.MEDIA_ID__PLAYLISTS);
+            this.load(ServicePlayback.MEDIA_ID__PLAYLISTS_ALL);
         }
     }
 
@@ -103,8 +104,8 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
     }
 
     @Override
-    public void createPlaylist(MediaBrowserCompat.MediaItem pTrack, String pPlaylistTitle) {
-        int errorResourceId = this.checkPlaylistInputData(pPlaylistTitle);
+    public void createPlaylist(MediaBrowserCompat.MediaItem pTrack, String pPlaylistName) {
+        int errorResourceId = this.checkPlaylistInputData(pPlaylistName);
         if (errorResourceId > 0) {
             V view = this.getView();
             if (view != null) {
@@ -130,7 +131,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
                 }
 
                 bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
-                bundle.putString(Constants.BUNDLE_KEY__PLAYLIST_TITLE, pPlaylistTitle);
+                bundle.putString(Constants.BUNDLE_KEY__PLAYLIST_NAME, pPlaylistName);
                 this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST).put(id, track);
                 this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, bundle);
             }
@@ -139,13 +140,14 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
 
     @Override
     public void addToRemoveFromPlaylist(MediaBrowserCompat.MediaItem pTrack, MediaBrowserCompat.MediaItem pPlaylist, boolean pIsAdd) {
-        /*if (this.mTransportControls != null) {
+        if (this.mTransportControls != null) {
             V view = this.getView();
             if (view != null) {
                 view.showNetworkProgress();
             }
-            Serializable track = pTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-            NctPlaylist playlist = (NctPlaylist) pPlaylist.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
+
+            Track track = (Track) pTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+            Playlist playlist = (Playlist) pPlaylist.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
             Bundle bundle = new Bundle();
             bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
             bundle.putSerializable(Constants.BUNDLE_KEY__PLAYLIST, playlist);
@@ -156,13 +158,13 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
             } else {
                 customAction = ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST;
             }
-            this.mTransactionActions.get(customAction).put(playlist.getId(), trackPlaylistPair);
+            this.mTransactionActions.get(customAction).put(Integer.toString(playlist.getId()), trackPlaylistPair);
             this.mTransportControls.sendCustomAction(customAction, bundle);
-        }*/
+        }
     }
 
-    private int checkPlaylistInputData(String pPlaylistTitle) {
-        if (UtilsString.isEmpty(pPlaylistTitle)) {
+    private int checkPlaylistInputData(String pPlaylistName) {
+        if (UtilsString.isEmpty(pPlaylistName)) {
             return R.string.error__blank_playlist_title;
         }
         return 0;
@@ -182,49 +184,49 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
     }
 
     private void handleCreatePlaylistEvent(Uri pUri) {
-        /*int trackId = Integer.parseInt(pUri.getQueryParameter("trackId"));
+        String id = pUri.getQueryParameter("trackId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST);
-        transactions.remove(trackId);
+        transactions.remove(id);
         V view = this.getView();
         if (view != null) {
             view.hideNetworkProgress();
             view.onPlaylistCreated();
-        }*/
+        }
     }
 
     private void handleAddToPlaylistEvent(Uri pUri) {
-        /*int playlistId = Integer.parseInt(pUri.getQueryParameter("playlistId"));
+        String id = pUri.getQueryParameter("playlistId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST);
-        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(playlistId);
+        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(id);
         trackPlaylistPair.mPlaylist.getTracks().add(trackPlaylistPair.mTrack);
-        transactions.remove(playlistId);
+        transactions.remove(id);
         V view = this.getView();
         if (view != null) {
             view.hideNetworkProgress();
             view.onAddToRemoveFromPlaylistResult();
-        }*/
+        }
     }
 
     private void handleRemoveFromPlaylistEvent(Uri pUri) {
-        /*int playlistId = Integer.parseInt(pUri.getQueryParameter("playlistId"));
+        String id = pUri.getQueryParameter("playlistId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST);
-        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(playlistId);
+        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(id);
         trackPlaylistPair.mPlaylist.getTracks().remove(trackPlaylistPair.mTrack);
-        transactions.remove(playlistId);
+        transactions.remove(id);
         V view = this.getView();
         if (view != null) {
             view.hideNetworkProgress();
             view.onAddToRemoveFromPlaylistResult();
-        }*/
+        }
     }
 
-    /*private class TrackPlaylistPair {
+    private class TrackPlaylistPair {
         private Track mTrack;
-        private NctPlaylist mPlaylist;
+        private Playlist mPlaylist;
 
-        private TrackPlaylistPair(Track pTrack, NctPlaylist pPlaylist) {
+        private TrackPlaylistPair(Track pTrack, Playlist pPlaylist) {
             this.mTrack = pTrack;
             this.mPlaylist = pPlaylist;
         }
-    }*/
+    }
 }

@@ -13,7 +13,7 @@ import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.R;
 
 public class FragmentCreateNewPlaylist extends FragmentBase {
-    private EditText mTxtPlaylistTitle;
+    private EditText mTxtPlaylistName;
     private Button mBtnOK;
 
     private MediaBrowserCompat.MediaItem mTrack;
@@ -33,7 +33,7 @@ public class FragmentCreateNewPlaylist extends FragmentBase {
 
     @Override
     protected void retrieveScreenItems(View pView) {
-        this.mTxtPlaylistTitle = (EditText) pView.findViewById(R.id.txtPlaylistTitle);
+        this.mTxtPlaylistName = (EditText) pView.findViewById(R.id.txtPlaylistName);
         this.mBtnOK = (Button) pView.findViewById(R.id.btnOK);
     }
 
@@ -58,12 +58,12 @@ public class FragmentCreateNewPlaylist extends FragmentBase {
 
     private void buttonOKClicked() {
         if (this.mListener != null) {
-            String playlistTitle = this.mTxtPlaylistTitle.getText().toString();
-            this.mListener.onOkButtonClicked(this.mTrack, playlistTitle);
+            String playlistName = this.mTxtPlaylistName.getText().toString();
+            this.mListener.onOkButtonClicked(this.mTrack, playlistName);
         }
     }
 
     public interface IOnOkButtonClickListener {
-        void onOkButtonClicked(MediaBrowserCompat.MediaItem pTrack, String pPlaylistTitle);
+        void onOkButtonClicked(MediaBrowserCompat.MediaItem pTrack, String pPlaylistName);
     }
 }

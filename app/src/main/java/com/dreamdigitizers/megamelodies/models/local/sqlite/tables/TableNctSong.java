@@ -50,6 +50,15 @@ public class TableNctSong extends TableBase {
         return columns;
     }
 
+    public static List<String> getColumnsForJoin() {
+        List<String> columns = TableNctSong.getColumns(true, true);
+
+        List<String> nctSingerColumns = TableNctSinger.getColumns(true, true);
+        columns.addAll(nctSingerColumns);
+
+        return columns;
+    }
+
     public static void onCreate(SQLiteDatabase pSQLiteDatabase) {
         pSQLiteDatabase.execSQL(TableNctSong.STATEMENT_CREATE);
     }

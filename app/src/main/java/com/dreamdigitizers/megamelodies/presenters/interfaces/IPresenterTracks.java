@@ -6,6 +6,6 @@ public interface IPresenterTracks extends IPresenterMediaItems {
     void loadAllPlaylists();
     void playFromMediaId(MediaBrowserCompat.MediaItem pMediaItem);
     void favorite(MediaBrowserCompat.MediaItem pMediaItem);
-    void createPlaylist(MediaBrowserCompat.MediaItem pTrack, String pPlaylistTitle);
+    void createPlaylist(MediaBrowserCompat.MediaItem pTrack, String pPlaylistName);
     void addToRemoveFromPlaylist(MediaBrowserCompat.MediaItem pTrack, MediaBrowserCompat.MediaItem pPlaylist, boolean pIsAdd);
 }

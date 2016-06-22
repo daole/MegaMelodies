@@ -7,7 +7,7 @@
         style="@style/Container.WrapContent.Vertical" >
 
         <EditText
-            android:id="@+id/txtPlaylistTitle"
+            android:id="@+id/txtPlaylistName"
             style="@style/EditText.PlaylistTitle" />
 
     </android.support.design.widget.TextInputLayout >

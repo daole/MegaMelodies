@@ -42,6 +42,24 @@ public class TablePlaylist extends TableBase {
         return columns;
     }
 
+    public static List<String> getColumnsForJoin() {
+        List<String> columns = TablePlaylist.getColumns(true, true);
+
+        List<String> playlistSongColumns = TablePlaylistSong.getColumns(true, true);
+        columns.addAll(playlistSongColumns);
+
+        List<String> nctSongColumns = TableNctSong.getColumns(true, true);
+        columns.addAll(nctSongColumns);
+
+        List<String> nctSingerColumns = TableNctSinger.getColumns(true, true);
+        columns.addAll(nctSingerColumns);
+
+        List<String> zingSongColumns = TableZingSong.getColumns(true, true);
+        columns.addAll(zingSongColumns);
+
+        return columns;
+    }
+
     public static void onCreate(SQLiteDatabase pSQLiteDatabase) {
         pSQLiteDatabase.execSQL(TablePlaylist.STATEMENT_CREATE);
     }
