@@ -25,6 +25,7 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
+import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
 
 import java.io.Serializable;
@@ -64,17 +65,18 @@ public class AdapterTrack extends AdapterPlaylist {
 
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        Serializable track = mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-        if (track instanceof NctSong) {
-            NctSong nctSong = (NctSong) track;
+        Track track = (Track) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+        Serializable originalTrack = track.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
             id = nctSong.getId();
             name = nctSong.getName();
             List<NctSinger> nctSingers = nctSong.getSingers();
             if (nctSingers.size() > 0) {
                 artist = nctSingers.get(0).getName();
             }
-        } else if (track instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) track;
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
             id = zingSong.getId();
             name = zingSong.getName();
             artist = zingSong.getArtist();
@@ -92,15 +94,17 @@ public class AdapterTrack extends AdapterPlaylist {
         Drawable drawable = null;
         if (this.mMediaMetadata != null) {
             String currentId = "";
-            Serializable currentTrack = this.mMediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track currentTrack = (Track) this.mMediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
             if (currentTrack == null && Build.VERSION.SDK_INT >= 21) {
                 currentTrack = Share.getCurrentTrack();
             }
-            if (currentTrack instanceof NctSong) {
-                NctSong currentNctSong = (NctSong) currentTrack;
+
+            Serializable currentOriginalTrack = currentTrack.getOriginalTrack();
+            if (currentOriginalTrack instanceof NctSong) {
+                NctSong currentNctSong = (NctSong) currentOriginalTrack;
                 currentId = currentNctSong.getId();
-            } else if (currentTrack instanceof ZingSong) {
-                ZingSong currentZingSong = (ZingSong) currentTrack;
+            } else if (currentOriginalTrack instanceof ZingSong) {
+                ZingSong currentZingSong = (ZingSong) currentOriginalTrack;
                 currentId = currentZingSong.getId();
             }
             if (currentTrack != null && UtilsString.equals(id, currentId)) {
@@ -157,17 +161,11 @@ public class AdapterTrack extends AdapterPlaylist {
             menuInflater.inflate(R.menu.menu__context_track_list, pContextMenu);
 
             MediaDescriptionCompat mediaDescription = this.mMediaItem.getDescription();
-            Serializable track = mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-            boolean isFavorite = false;
-            if (track instanceof NctSong) {
-                NctSong nctSong = (NctSong) track;
-            } else if (track instanceof ZingSong) {
-                ZingSong zingSong = (ZingSong) track;
-            }
+            Track track = (Track) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
 
             MenuItem menuItem = pContextMenu.getItem(0);
             menuItem.setOnMenuItemClickListener(this);
-            if (isFavorite) {
+            if (track.isFavorite()) {
                 menuItem.setTitle(AdapterTrack.this.mContext.getString(R.string.context_menu_item__unfavorite));
             } else {
                 menuItem.setTitle(AdapterTrack.this.mContext.getString(R.string.context_menu_item__favorite));

@@ -11,4 +11,5 @@ public class Constants {
     public static final String BUNDLE_KEY__TRACK = "track";
     public static final String BUNDLE_KEY__PLAYLIST = "playlist";
     public static final String BUNDLE_KEY__PLAYLISTS = "playlists";
+    public static final String BUNDLE_KEY__PLAYLIST_TITLE = "playlist_title";
 }

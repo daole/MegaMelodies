@@ -12,15 +12,18 @@ public class TableNctSong extends TableBase {
 
     public static final String COLUMN_NAME__NAME = "name";
     public static final String COLUMN_NAME__URL = "url";
+    public static final String COLUMN_NAME__IS_FAVORITE = "is_favorite";
 
     public static final String COLUMN_NAME_ALIAS___ID = TableNctSong.TABLE_NAME + "_" + TableNctSong.COLUMN_NAME___ID;
     public static final String COLUMN_NAME_ALIAS__NAME = TableNctSong.TABLE_NAME + "_" + TableNctSong.COLUMN_NAME__NAME;
     public static final String COLUMN_NAME_ALIAS__URL = TableNctSong.TABLE_NAME + "_" + TableNctSong.COLUMN_NAME__URL;
+    public static final String COLUMN_NAME_ALIAS__IS_FAVORITE = TableNctSong.TABLE_NAME + "_" + TableNctSong.COLUMN_NAME__IS_FAVORITE;
 
     private static final String STATEMENT_CREATE = "CREATE TABLE `" + TableNctSong.TABLE_NAME + "` ("
             + "`" + TableNctSong.COLUMN_NAME___ID + "` TEXT NOT NULL PRIMARY KEY,"
             + "`" + TableNctSong.COLUMN_NAME__NAME + "` TEXT NOT NULL,"
-            + "`" + TableNctSong.COLUMN_NAME__URL + "` TEXT NOT NULL"
+            + "`" + TableNctSong.COLUMN_NAME__URL + "` TEXT NOT NULL,"
+            + "`" + TableZingSong.COLUMN_NAME__IS_FAVORITE + "` NUMERIC NOT NULL"
             + ");";
 
     private static final String STATEMENT_UPGRADE = "";
@@ -42,6 +45,7 @@ public class TableNctSong extends TableBase {
         }
         columns.add(tableName + TableNctSong.COLUMN_NAME__NAME + (pIsIncludeTableName ? (" as "  + TableNctSong.COLUMN_NAME_ALIAS__NAME) : ""));
         columns.add(tableName + TableNctSong.COLUMN_NAME__URL + (pIsIncludeTableName ? (" as "  + TableNctSong.COLUMN_NAME_ALIAS__URL) : ""));
+        columns.add(tableName + TableNctSong.COLUMN_NAME__IS_FAVORITE + (pIsIncludeTableName ? (" as "  + TableNctSong.COLUMN_NAME_ALIAS__IS_FAVORITE) : ""));
 
         return columns;
     }

@@ -12,15 +12,18 @@ public class TableZingSong extends TableBase {
 
     public static final String COLUMN_NAME__NAME = "name";
     public static final String COLUMN_NAME__ARTIST = "artist";
+    public static final String COLUMN_NAME__IS_FAVORITE = "is_favorite";
 
     public static final String COLUMN_NAME_ALIAS___ID = TableZingSong.TABLE_NAME + "_" + TableZingSong.COLUMN_NAME___ID;
     public static final String COLUMN_NAME_ALIAS__NAME = TableZingSong.TABLE_NAME + "_" + TableZingSong.COLUMN_NAME__NAME;
     public static final String COLUMN_NAME_ALIAS__ARTIST = TableZingSong.TABLE_NAME + "_" + TableZingSong.COLUMN_NAME__ARTIST;
+    public static final String COLUMN_NAME_ALIAS__IS_FAVORITE = TableZingSong.TABLE_NAME + "_" + TableZingSong.COLUMN_NAME__IS_FAVORITE;
 
     private static final String STATEMENT_CREATE = "CREATE TABLE `" + TableZingSong.TABLE_NAME + "` ("
             + "`" + TableZingSong.COLUMN_NAME___ID + "` TEXT NOT NULL PRIMARY KEY,"
             + "`" + TableZingSong.COLUMN_NAME__NAME + "` TEXT NOT NULL,"
-            + "`" + TableZingSong.COLUMN_NAME__ARTIST + "` TEXT NOT NULL"
+            + "`" + TableZingSong.COLUMN_NAME__ARTIST + "` TEXT NOT NULL,"
+            + "`" + TableZingSong.COLUMN_NAME__IS_FAVORITE + "` NUMERIC NOT NULL"
             + ");";
 
     private static final String STATEMENT_UPGRADE = "";
@@ -42,6 +45,7 @@ public class TableZingSong extends TableBase {
         }
         columns.add(tableName + TableZingSong.COLUMN_NAME__NAME + (pIsIncludeTableName ? (" as "  + TableZingSong.COLUMN_NAME_ALIAS__NAME) : ""));
         columns.add(tableName + TableZingSong.COLUMN_NAME__ARTIST + (pIsIncludeTableName ? (" as "  + TableZingSong.COLUMN_NAME_ALIAS__ARTIST) : ""));
+        columns.add(tableName + TableZingSong.COLUMN_NAME__IS_FAVORITE + (pIsIncludeTableName ? (" as "  + TableZingSong.COLUMN_NAME_ALIAS__IS_FAVORITE) : ""));
 
         return columns;
     }

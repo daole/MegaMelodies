@@ -11,15 +11,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
 
-import java.io.Serializable;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistDialog.DialogPlaylistViewHolder> {
-    private Serializable mTrack;
+    private Track mTrack;
     private MediaBrowserCompat.MediaItem mMediaItemTrack;
     private List<MediaBrowserCompat.MediaItem> mPlaylists;
 
@@ -27,7 +27,7 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
 
     public AdapterPlaylistDialog(MediaBrowserCompat.MediaItem pTrack, List<MediaBrowserCompat.MediaItem> pPlaylists, IOnAddRemoveButtonClickListener pListener) {
         this.mMediaItemTrack = pTrack;
-        this.mTrack = this.mMediaItemTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);;
+        this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);;
         this.mPlaylists = pPlaylists;
         this.mListener = pListener;
     }

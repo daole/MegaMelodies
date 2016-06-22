@@ -10,6 +10,7 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSinger;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.models.Track;
 
 import java.util.List;
 
@@ -17,6 +18,9 @@ public class MetadataBuilder {
     public static final String BUNDLE_KEY__TRACK = "track";
 
     public static MediaMetadataCompat build(NctSong pNctSong) {
+        Track track = new Track();
+        track.setOriginalTrack(pNctSong);
+
         String id = pNctSong.getId();
         String name = pNctSong.getName();
         String singerName = null;
@@ -30,12 +34,15 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, singerName)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, pNctSong);
+        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
 
     public static MediaMetadataCompat build(ZingSong pZingSong) {
+        Track track = new Track();
+        track.setOriginalTrack(pZingSong);
+
         String id = pZingSong.getId();
         String name = pZingSong.getName();
         String artist = pZingSong.getArtist();
@@ -45,12 +52,15 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, artist)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, pZingSong);
+        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
 
     public static MediaMetadataCompat build(NctMusic pNctMusic) {
+        Track track = new Track();
+        track.setOriginalTrack(pNctMusic);
+
         String id = pNctMusic.getId();
         String title = pNctMusic.getTitle();
         String creator = pNctMusic.getCreator();
@@ -62,12 +72,15 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, creator)
                 .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, avatar)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, pNctMusic);
+        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
 
     public static MediaMetadataCompat build(ZingMusic pZingMusic) {
+        Track track = new Track();
+        track.setOriginalTrack(pZingMusic);
+
         String id = pZingMusic.getId();
         String title = pZingMusic.getTitle();
         String performer = pZingMusic.getPerformer();
@@ -79,7 +92,7 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, performer)
                 .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, backImage)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, pZingMusic);
+        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }

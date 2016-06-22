@@ -2,7 +2,8 @@ package com.dreamdigitizers.megamelodies;
 
 import android.os.Bundle;
 
-import java.io.Serializable;
+import com.dreamdigitizers.megamelodies.models.Track;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,13 +16,13 @@ public class Share {
     private static final Bundle bundle = new Bundle();
     private static final Map<IOnDataChangedListener, Object> listeners = Collections.synchronizedMap(new WeakHashMap<IOnDataChangedListener, Object>());
 
-    public static Serializable getCurrentTrack() {
-        return Share.bundle.getSerializable(Share.SHARE_KEY__CURRENT_TRACK);
+    public static Track getCurrentTrack() {
+        return (Track) Share.bundle.getSerializable(Share.SHARE_KEY__CURRENT_TRACK);
     }
 
-    public static void setCurrentTrack(Serializable pTrack) {
+    public static void setCurrentTrack(Track pTrack) {
         if (pTrack != null) {
-            Serializable oldTrack = Share.getCurrentTrack();
+            Track oldTrack = Share.getCurrentTrack();
             if (pTrack != oldTrack) {
                 Share.bundle.putSerializable(Share.SHARE_KEY__CURRENT_TRACK, pTrack);
                 for (Iterator<IOnDataChangedListener> iterator = Share.listeners.keySet().iterator(); iterator.hasNext();) {
@@ -50,6 +51,6 @@ public class Share {
     }
 
     public interface IOnDataChangedListener {
-        void onCurrentTrackChanged(Serializable pNewTrack, Serializable pOldTrack);
+        void onCurrentTrackChanged(Track pNewTrack, Track pOldTrack);
     }
 }

@@ -17,16 +17,17 @@ import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.Cus
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.IPlayback;
 import com.dreamdigitizers.androidbaselibrary.views.classes.services.support.MediaPlayerNotificationReceiver;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctData;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctMusic;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingData;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
+import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.CustomLocalPlayback;
@@ -164,12 +165,13 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             CustomQueueItem customQueueItem = playingQueue.get(currentIndexOnQueue);
             if (UtilsString.isEmpty(customQueueItem.getStreamUrl())) {
                 MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
-                Serializable track = mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-                if (track instanceof NctSong) {
-                    NctSong nctSong = (NctSong) track;
+                Track track = (Track) mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                Serializable originalTrack = track.getOriginalTrack();
+                if (originalTrack instanceof NctSong) {
+                    NctSong nctSong = (NctSong) originalTrack;
                     this.mPresenter.nctFetch(null, nctSong.getUrl(), nctSong.getName());
-                } else if (track instanceof ZingSong) {
-                    ZingSong zingSong = (ZingSong) track;
+                } else if (originalTrack instanceof ZingSong) {
+                    ZingSong zingSong = (ZingSong) originalTrack;
                     this.mPresenter.zingFetch(null, zingSong.getName(), zingSong.getArtist(), zingSong.getId());
                 }
 
@@ -183,6 +185,29 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     }
 
     @Override
+    protected void processCustomActionRequest(String pAction, Bundle pExtras) {
+        switch (pAction) {
+            case ServicePlayback.CUSTOM_ACTION__FAVORITE:
+                this.processFavoriteRequest(pExtras);
+                break;
+            case ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST:
+                this.processCreatePlaylistRequest(pExtras);
+                break;
+            case ServicePlayback.CUSTOM_ACTION__DELETE_PLAYLIST:
+                this.processDeletePlaylistRequest(pExtras);
+                break;
+            case ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST:
+                this.processAddToPlaylistRequest(pExtras);
+                break;
+            case ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST:
+                this.processRemoveFromPlaylistRequest(pExtras);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
     protected void updateMetadata() {
         if (!this.isIndexPlayable(this.getCurrentIndexOnQueue(), this.getPlayingQueue())) {
             this.updatePlaybackState(ServiceMediaBrowser.ERROR_CODE__MEDIA_INVALID_INDEX);
@@ -192,7 +217,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
         MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
         if (Build.VERSION.SDK_INT >= 21) {
-            Serializable track = mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track track = (Track) mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
             Share.setCurrentTrack(track);
         }
         this.getMediaSession().setMetadata(mediaMetadata);
@@ -435,6 +460,31 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         }
 
         return mediaItems;
+    }
+
+    private void processFavoriteRequest(Bundle pExtras) {
+        Track track = (Track) pExtras.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+        if (track.isFavorite()) {
+            this.mPresenter.unfavorite(track);
+        } else {
+            this.mPresenter.favorite(track);
+        }
+    }
+
+    private void processCreatePlaylistRequest(Bundle pExtras) {
+
+    }
+
+    private void processDeletePlaylistRequest(Bundle pExtras) {
+
+    }
+
+    private void processAddToPlaylistRequest(Bundle pExtras) {
+
+    }
+
+    private void processRemoveFromPlaylistRequest(Bundle pExtras) {
+
     }
 
     private void onRxSearchNext(List<MediaBrowserCompat.MediaItem> pMediaItems) {

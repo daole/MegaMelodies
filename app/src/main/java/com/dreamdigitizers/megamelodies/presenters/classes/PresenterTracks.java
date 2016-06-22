@@ -5,21 +5,27 @@ import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterTracks;
 import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewTracks;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
 abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItems<V> implements IPresenterTracks {
     public PresenterTracks(V pView) {
         super(pView);
-        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__FAVORITE, new HashMap<Integer, Object>());
-        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, new HashMap<Integer, Object>());
-        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST, new HashMap<Integer, Object>());
-        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST, new HashMap<Integer, Object>());
+        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__FAVORITE, new HashMap<String, Object>());
+        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, new HashMap<String, Object>());
+        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST, new HashMap<String, Object>());
+        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST, new HashMap<String, Object>());
     }
 
     @Override
@@ -75,17 +81,29 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
 
     @Override
     public void favorite(MediaBrowserCompat.MediaItem pMediaItem) {
-        /*if (this.mTransportControls != null) {
+        if (this.mTransportControls != null) {
             Bundle bundle =  pMediaItem.getDescription().getExtras();
-            Serializable track = bundle.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-            this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(track.getId(), track);
-            this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__FAVORITE, bundle);
-        }*/
+
+            String id = null;
+            Track track = (Track) bundle.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Serializable originalTrack = track.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                id = nctSong.getId();
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                zingSong.getId();
+            }
+
+            if (!UtilsString.isEmpty(id)) {
+                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(id, track);
+                this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__FAVORITE, bundle);
+            }
+        }
     }
 
     @Override
     public void createPlaylist(MediaBrowserCompat.MediaItem pTrack, String pPlaylistTitle) {
-        /*
         int errorResourceId = this.checkPlaylistInputData(pPlaylistTitle);
         if (errorResourceId > 0) {
             V view = this.getView();
@@ -98,16 +116,25 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
                 if (view != null) {
                     view.showNetworkProgress();
                 }
-                Serializable track = pTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                Track track = (Track) pTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                Serializable originalTrack = track.getOriginalTrack();
                 Bundle bundle = new Bundle();
+
+                String id = null;
+                if (originalTrack instanceof NctSong) {
+                    NctSong nctSong = (NctSong) originalTrack;
+                    id = nctSong.getId();
+                } else if (originalTrack instanceof ZingSong) {
+                    ZingSong zingSong = (ZingSong) originalTrack;
+                    zingSong.getId();
+                }
+
                 bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
                 bundle.putString(Constants.BUNDLE_KEY__PLAYLIST_TITLE, pPlaylistTitle);
-                bundle.putBoolean(Constants.BUNDLE_KEY__IS_PUBLIC, pIsPublic);
-                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST).put(track.getId(), track);
+                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST).put(id, track);
                 this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, bundle);
             }
         }
-        */
     }
 
     @Override

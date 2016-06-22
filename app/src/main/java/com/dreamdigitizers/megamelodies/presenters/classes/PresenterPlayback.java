@@ -1,14 +1,23 @@
 package com.dreamdigitizers.megamelodies.presenters.classes;
 
+import android.content.Context;
+
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsDialog;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.IApi;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctMusic;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSearchResult;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingMusic;
 import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSearchResult;
+import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
+import com.dreamdigitizers.megamelodies.models.Track;
+import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperNctSong;
+import com.dreamdigitizers.megamelodies.models.local.sqlite.helpers.HelperZingSong;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
+
+import java.io.Serializable;
 
 import rx.Subscriber;
 import rx.Subscription;
@@ -162,6 +171,38 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
                         PresenterPlayback.this.onError(pError, pRetryAction);
                     }
                 });
+    }
+
+    @Override
+    public void favorite(Track pTrack) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            Serializable originalTrack = pTrack.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                HelperNctSong.favorite(context, nctSong);
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                HelperZingSong.favorite(context, zingSong);
+            }
+        }
+    }
+
+    @Override
+    public void unfavorite(Track pTrack) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Context context = view.getViewContext();
+            Serializable originalTrack = pTrack.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                HelperNctSong.unfavorite(context, nctSong);
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                HelperZingSong.unfavorite(context, zingSong);
+            }
+        }
     }
 
     private void unsubscribe() {

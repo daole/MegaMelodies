@@ -11,7 +11,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.dreamdigitizers.androidbaselibrary.presenters.classes.PresenterBase;
-import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterMediaItems;
 import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
@@ -28,7 +27,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     protected MediaControllerCompat mMediaController;
     protected MediaControllerCompat.TransportControls mTransportControls;
 
-    protected HashMap<String, HashMap<Integer, Object>> mTransactionActions;
+    protected HashMap<String, HashMap<String, Object>> mTransactionActions;
 
     protected int mOffset;
 
