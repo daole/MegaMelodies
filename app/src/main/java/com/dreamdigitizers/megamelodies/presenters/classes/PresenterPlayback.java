@@ -174,6 +174,26 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
     }
 
     @Override
+    public void checkFavoriteTrack(Track pTrack) {
+        IViewPlayback view = this.getView();
+        if (view != null) {
+            Track track = null;
+            Context context = view.getViewContext();
+            Serializable originalTrack = pTrack.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                track = HelperNctSong.retrieveById(context, nctSong.getId());
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                track = HelperZingSong.retrieveById(context, zingSong.getId());
+            }
+            if (track != null) {
+                pTrack.setFavorite(track.isFavorite());
+            }
+        }
+    }
+
+    @Override
     public void favorite(Track pTrack) {
         IViewPlayback view = this.getView();
         if (view != null) {

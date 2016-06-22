@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.models.Track;
-import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
 
     public AdapterPlaylistDialog(MediaBrowserCompat.MediaItem pTrack, List<MediaBrowserCompat.MediaItem> pPlaylists, IOnAddRemoveButtonClickListener pListener) {
         this.mMediaItemTrack = pTrack;
-        this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);;
+        this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);;
         this.mPlaylists = pPlaylists;
         this.mListener = pListener;
     }
@@ -42,7 +42,7 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
     public void onBindViewHolder(DialogPlaylistViewHolder pHolder, int pPosition) {
         MediaBrowserCompat.MediaItem mediaItem = this.mPlaylists.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
             pHolder.mImgMediaItem.setImageBitmap(bitmap);

@@ -44,7 +44,7 @@ public class AdapterPlaylist extends AdapterMediaItem<AdapterPlaylist.PlaylistVi
     public void onBindViewHolder(PlaylistViewHolder pHolder, int pPosition) {
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
             //pHolder.mImgMediaItem.setImageBitmap(bitmap);

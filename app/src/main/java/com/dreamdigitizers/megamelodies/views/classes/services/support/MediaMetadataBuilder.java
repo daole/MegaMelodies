@@ -14,7 +14,7 @@ import com.dreamdigitizers.megamelodies.models.Track;
 
 import java.util.List;
 
-public class MetadataBuilder {
+public class MediaMetadataBuilder {
     public static final String BUNDLE_KEY__TRACK = "track";
 
     public static MediaMetadataCompat build(NctSong pNctSong) {
@@ -34,7 +34,7 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, singerName)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
@@ -52,7 +52,7 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, artist)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
@@ -72,7 +72,7 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, creator)
                 .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, avatar)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
@@ -92,7 +92,7 @@ public class MetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, performer)
                 .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, backImage)
                 .build();
-        mediaMetadata.getBundle().putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, track);
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
 
         return mediaMetadata;
     }
@@ -100,8 +100,8 @@ public class MetadataBuilder {
     public static MediaDescriptionCompat build(MediaMetadataCompat pMediaMetadata) {
         Bundle bundle = new Bundle();
         Bundle mediaMetadataBundle = pMediaMetadata.getBundle();
-        if (mediaMetadataBundle.containsKey(MetadataBuilder.BUNDLE_KEY__TRACK)) {
-            bundle.putSerializable(MetadataBuilder.BUNDLE_KEY__TRACK, mediaMetadataBundle.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK));
+        if (mediaMetadataBundle.containsKey(MediaMetadataBuilder.BUNDLE_KEY__TRACK)) {
+            bundle.putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, mediaMetadataBundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK));
         }
 
         String artUri = pMediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);

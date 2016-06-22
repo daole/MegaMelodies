@@ -31,7 +31,7 @@ import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.CustomLocalPlayback;
-import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.PlaybackNotificationReceiver;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewRx;
@@ -165,7 +165,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             CustomQueueItem customQueueItem = playingQueue.get(currentIndexOnQueue);
             if (UtilsString.isEmpty(customQueueItem.getStreamUrl())) {
                 MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
-                Track track = (Track) mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
                 Serializable originalTrack = track.getOriginalTrack();
                 if (originalTrack instanceof NctSong) {
                     NctSong nctSong = (NctSong) originalTrack;
@@ -217,7 +217,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         CustomQueueItem customQueueItem = this.getPlayingQueue().get(this.getCurrentIndexOnQueue());
         MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
         if (Build.VERSION.SDK_INT >= 21) {
-            Track track = (Track) mediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
             Share.setCurrentTrack(track);
         }
         this.getMediaSession().setMetadata(mediaMetadata);
@@ -399,8 +399,8 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             long i = 0;
             List<NctSong> nctSongs = nctData.getSongs();
             for (NctSong nctSong : nctSongs) {
-                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(nctSong);
-                MediaDescriptionCompat mediaDescription = MetadataBuilder.build(mediaMetadata);
+                MediaMetadataCompat mediaMetadata = MediaMetadataBuilder.build(nctSong);
+                MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
 
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
                 mediaItems.add(mediaItem);
@@ -436,8 +436,8 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             long i = 0;
             List<ZingSong> zingSongs = zingData.getSongs();
             for (ZingSong zingSong : zingSongs) {
-                MediaMetadataCompat mediaMetadata = MetadataBuilder.build(zingSong);
-                MediaDescriptionCompat mediaDescription = MetadataBuilder.build(mediaMetadata);
+                MediaMetadataCompat mediaMetadata = MediaMetadataBuilder.build(zingSong);
+                MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
 
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
                 mediaItems.add(mediaItem);
@@ -463,12 +463,15 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     }
 
     private void processFavoriteRequest(Bundle pExtras) {
-        Track track = (Track) pExtras.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+        Track track = (Track) pExtras.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
         if (track.isFavorite()) {
             this.mPresenter.unfavorite(track);
+            track.setFavorite(false);
         } else {
             this.mPresenter.favorite(track);
+            track.setFavorite(true);
         }
+        this.sendFavoriteActionResult(track);
     }
 
     private void processCreatePlaylistRequest(Bundle pExtras) {
@@ -487,6 +490,22 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     }
 
+    private void sendFavoriteActionResult(Track pTrack) {
+        String id = null;
+        Serializable originalTrack = pTrack.getOriginalTrack();
+        if (originalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) originalTrack;
+            id = nctSong.getId();
+        } else if (originalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) originalTrack;
+            id = zingSong.getId();
+        }
+        if (!UtilsString.isEmpty(id)) {
+            String eventAction = String.format(ServicePlayback.EVENT_URI__FAVORITE, ServicePlayback.CUSTOM_ACTION__FAVORITE, id, pTrack.isFavorite());
+            this.getMediaSession().sendSessionEvent(eventAction, null);
+        }
+    }
+
     private void onRxSearchNext(List<MediaBrowserCompat.MediaItem> pMediaItems) {
         this.mSearchMediaItems.addAll(pMediaItems);
 
@@ -501,6 +520,11 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 this.mIsSearchMore = false;
             }
             mediaItems = this.mSearchMediaItems.subList(this.mLastStartIndex, this.mLastEndIndex);
+
+            for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
+                Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                this.mPresenter.checkFavoriteTrack(track);
+            }
         }
         this.mSearchResult.sendResult(mediaItems);
         this.mSearchResult = null;

@@ -26,7 +26,7 @@ import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.models.Track;
-import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -61,11 +61,10 @@ public class AdapterTrack extends AdapterPlaylist {
         String id = "";
         String name = "";
         String artist = "";
-        boolean isFavorite = false;
 
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        Track track = (Track) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+        Track track = (Track) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
         Serializable originalTrack = track.getOriginalTrack();
         if (originalTrack instanceof NctSong) {
             NctSong nctSong = (NctSong) originalTrack;
@@ -88,13 +87,13 @@ public class AdapterTrack extends AdapterPlaylist {
         }
         trackViewHolder.mLblName.setText(name);
         trackViewHolder.mLblArtist.setText(artist);
-        trackViewHolder.mImgFavorite.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+        trackViewHolder.mImgFavorite.setVisibility(track.isFavorite() ? View.VISIBLE : View.GONE);
         trackViewHolder.mMediaItem = mediaItem;
 
         Drawable drawable = null;
         if (this.mMediaMetadata != null) {
             String currentId = "";
-            Track currentTrack = (Track) this.mMediaMetadata.getBundle().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track currentTrack = (Track) this.mMediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
             if (currentTrack == null && Build.VERSION.SDK_INT >= 21) {
                 currentTrack = Share.getCurrentTrack();
             }
@@ -161,7 +160,7 @@ public class AdapterTrack extends AdapterPlaylist {
             menuInflater.inflate(R.menu.menu__context_track_list, pContextMenu);
 
             MediaDescriptionCompat mediaDescription = this.mMediaItem.getDescription();
-            Track track = (Track) mediaDescription.getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track track = (Track) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
 
             MenuItem menuItem = pContextMenu.getItem(0);
             menuItem.setOnMenuItemClickListener(this);

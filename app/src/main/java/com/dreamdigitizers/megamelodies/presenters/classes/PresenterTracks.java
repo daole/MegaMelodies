@@ -12,7 +12,7 @@ import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterTracks;
 import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
-import com.dreamdigitizers.megamelodies.views.classes.services.support.MetadataBuilder;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewTracks;
 
 import java.io.Serializable;
@@ -85,14 +85,14 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
             Bundle bundle =  pMediaItem.getDescription().getExtras();
 
             String id = null;
-            Track track = (Track) bundle.getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+            Track track = (Track) bundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
             Serializable originalTrack = track.getOriginalTrack();
             if (originalTrack instanceof NctSong) {
                 NctSong nctSong = (NctSong) originalTrack;
                 id = nctSong.getId();
             } else if (originalTrack instanceof ZingSong) {
                 ZingSong zingSong = (ZingSong) originalTrack;
-                zingSong.getId();
+                id = zingSong.getId();
             }
 
             if (!UtilsString.isEmpty(id)) {
@@ -116,7 +116,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
                 if (view != null) {
                     view.showNetworkProgress();
                 }
-                Track track = (Track) pTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
+                Track track = (Track) pTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
                 Serializable originalTrack = track.getOriginalTrack();
                 Bundle bundle = new Bundle();
 
@@ -144,8 +144,8 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
             if (view != null) {
                 view.showNetworkProgress();
             }
-            Serializable track = pTrack.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__TRACK);
-            NctPlaylist playlist = (NctPlaylist) pPlaylist.getDescription().getExtras().getSerializable(MetadataBuilder.BUNDLE_KEY__PLAYLIST);
+            Serializable track = pTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+            NctPlaylist playlist = (NctPlaylist) pPlaylist.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
             Bundle bundle = new Bundle();
             bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
             bundle.putSerializable(Constants.BUNDLE_KEY__PLAYLIST, playlist);
@@ -169,16 +169,16 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
     }
 
     private void handleFavoriteEvent(Uri pUri) {
-        /*int trackId = Integer.parseInt(pUri.getQueryParameter("trackId"));
+        String id = pUri.getQueryParameter("trackId");
         boolean userFavorite = Boolean.parseBoolean(pUri.getQueryParameter("userFavorite"));
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE);
-        Track track = (Track) transactions.get(trackId);
-        track.setUserFavorite(userFavorite);
-        transactions.remove(trackId);
+        Track track = (Track) transactions.get(id);
+        track.setFavorite(userFavorite);
+        transactions.remove(id);
         V view = this.getView();
         if (view != null) {
             view.updateState();
-        }*/
+        }
     }
 
     private void handleCreatePlaylistEvent(Uri pUri) {
