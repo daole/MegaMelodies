@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.models.Playlist;
@@ -16,7 +14,6 @@ import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewTracks;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 

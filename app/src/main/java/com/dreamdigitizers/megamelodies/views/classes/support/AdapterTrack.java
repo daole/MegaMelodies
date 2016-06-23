@@ -20,15 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSinger;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.nct.NctSong;
-import com.dreamdigitizers.androiddatafetchingapisclient.models.zing.ZingSong;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.Share;
 import com.dreamdigitizers.megamelodies.models.Track;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
