@@ -4,13 +4,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dreamdigitizers.androidbaselibrary.views.classes.fragments.screens.ScreenBase;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterFavorites;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewFavorites;
 
-public class ScreenFavorites extends ScreenBase<IPresenterFavorites> implements IViewFavorites {
+public class ScreenFavorites extends ScreenTracks<IPresenterFavorites> implements IViewFavorites {
     @Override
     public int getScreenId() {
         return 0;
