@@ -15,6 +15,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.dreamdigitizers.megamelodies.R;
+import com.dreamdigitizers.megamelodies.models.Playlist;
+import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,29 +46,32 @@ public class AdapterPlaylist extends AdapterMediaItem<AdapterPlaylist.PlaylistVi
     public void onBindViewHolder(PlaylistViewHolder pHolder, int pPosition) {
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
-        //NctPlaylist playlist = (NctPlaylist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
+        Playlist playlist = (Playlist) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
-            //pHolder.mImgMediaItem.setImageBitmap(bitmap);
-        } else {
-            //UtilsImage.loadBitmap(this.mContext, playlist.getArtworkUrl(), R.drawable.ic__my_music, pHolder.mImgMediaItem);
+            pHolder.mImgMediaItem.setImageBitmap(bitmap);
         }
 
-        //pHolder.mLblUsername.setText(playlist.getUser().getUsername());
-        //pHolder.mLblDuration.setText(DateUtils.formatElapsedTime(playlist.getDuration() / 1000));
-        //pHolder.mLblName.setText(playlist.getTitle());
+        pHolder.mLblName.setText(playlist.getName());
+
+        int tracksSize = playlist.getTracks().size();
+        String tracksNum = pHolder.mLblTracksNum.getContext().getResources().getQuantityString(R.plurals.label__tracks_num, tracksSize, tracksSize);
+        pHolder.mLblTracksNum.setText(tracksNum);
+
         pHolder.mMediaItem = mediaItem;
     }
 
     protected class PlaylistViewHolder extends AdapterMediaItem.MediaItemViewHolder implements View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
         protected CircleImageView mImgMediaItem;
         protected TextView mLblName;
+        protected TextView mLblTracksNum;
         protected ImageButton mBtnContextMenu;
 
         public PlaylistViewHolder(View pItemView) {
             super(pItemView);
             this.mImgMediaItem = (CircleImageView) pItemView.findViewById(R.id.imgMediaItem);
             this.mLblName = (TextView) pItemView.findViewById(R.id.lblName);
+            this.mLblTracksNum = (TextView) pItemView.findViewById(R.id.lblTracksNum);
             this.mBtnContextMenu = (ImageButton) pItemView.findViewById(R.id.btnContextMenu);
             this.mBtnContextMenu.setOnClickListener(new View.OnClickListener() {
                 @Override

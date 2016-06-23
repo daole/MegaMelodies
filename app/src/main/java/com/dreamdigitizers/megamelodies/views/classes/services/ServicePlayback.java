@@ -377,7 +377,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             if (endIndex > size) {
                 endIndex = size;
             }
-            mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
+            mediaItems = this.mFavoritesMediaItems.subList(startIndex, endIndex);
         }
 
         pResult.sendResult(mediaItems);
@@ -562,27 +562,17 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         long playingQueueSize = pPlayingQueue.size();
         long i = 0;
         for (Track track : pTracks) {
-            MediaMetadataCompat mediaMetadata = null;
-            Serializable originalTrack = track.getOriginalTrack();
-            if (originalTrack instanceof NctSong) {
-                NctSong nctSong = (NctSong) originalTrack;
-                mediaMetadata = MediaMetadataBuilder.build(nctSong);
-            } else if (originalTrack instanceof ZingSong) {
-                ZingSong zingSong = (ZingSong) originalTrack;
-                mediaMetadata = MediaMetadataBuilder.build(zingSong);
-            }
+            MediaMetadataCompat mediaMetadata = MediaMetadataBuilder.build(track);
+            MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
 
-            if (mediaMetadata != null) {
-                MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
-                MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-                mediaItems.add(mediaItem);
+            MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+            mediaItems.add(mediaItem);
 
-                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, playingQueueSize + i);
-                CustomQueueItem customQueueItem = new CustomQueueItem(queueItem, mediaMetadata, null);
-                customQueueItems.add(customQueueItem);
+            MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, playingQueueSize + i);
+            CustomQueueItem customQueueItem = new CustomQueueItem(queueItem, mediaMetadata, null);
+            customQueueItems.add(customQueueItem);
 
-                i++;
-            }
+            i++;
         }
 
         if (customQueueItems.size() > 0) {
@@ -685,6 +675,11 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     private void addPlaylist(Playlist pPlaylist) {
         if (!this.mPlaylists.isEmpty()) {
+            List<CustomQueueItem> customQueueItems = new ArrayList<>();
+            List<Playlist> playlists = new ArrayList<>();
+            playlists.add(pPlaylist);
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(playlists);
+            this.mPlaylistsMediaItems.addAll(mediaItems);
             this.mPlaylists.add(pPlaylist);
         }
     }
@@ -692,11 +687,17 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private void deletePlaylist(Playlist pPlaylist) {
         if (!this.mPlaylists.isEmpty()) {
             int id = pPlaylist.getId();
+            int i = 0;
             for (Playlist playlist : this.mPlaylists) {
                 if (playlist.getId() == id) {
-                    this.mPlaylists.remove(playlist);
+                    this.mPlaylists.remove(i);
+                    this.mPlaylistsMediaItems.remove(i);
+                    if (this.mPlaylistMediaItems.containsKey(id)) {
+                        this.mPlaylistMediaItems.remove(id);
+                    }
                     break;
                 }
+                i++;
             }
         }
     }
@@ -704,16 +705,18 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private void addTrackToPlaylist(Track pTrack, Playlist pPlaylist) {
         if (!this.mPlaylists.isEmpty()) {
             int id = pPlaylist.getId();
-            for (Playlist playlist : this.mPlaylists) {
-                if (id == playlist.getId()) {
-                    playlist.getTracks().add(pTrack);
-                    List<CustomQueueItem> customQueueItems = new ArrayList<>();
-                    List<Track> tracks = new ArrayList<>();
-                    tracks.add(pTrack);
-                    List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(tracks, customQueueItems, false);
-                    this.mPlaylistMediaItems.get(id).addAll(mediaItems);
-                    this.mPlaylistQueues.get(id).addAll(customQueueItems);
-                    break;
+            if (this.mPlaylistMediaItems.containsKey(id)) {
+                for (Playlist playlist : this.mPlaylists) {
+                    if (id == playlist.getId()) {
+                        playlist.getTracks().add(pTrack);
+                        List<CustomQueueItem> customQueueItems = new ArrayList<>();
+                        List<Track> tracks = new ArrayList<>();
+                        tracks.add(pTrack);
+                        List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(tracks, customQueueItems, false);
+                        this.mPlaylistMediaItems.get(id).addAll(mediaItems);
+                        this.mPlaylistQueues.get(id).addAll(customQueueItems);
+                        break;
+                    }
                 }
             }
         }
@@ -735,22 +738,26 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 }
             }
 
-            List<CustomQueueItem> customQueueItems = this.mPlaylistQueues.get(playlistId);
-            for (CustomQueueItem customQueueItem : customQueueItems) {
-                MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
-                Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-                if (UtilsString.equals(trackId, track.getId())) {
-                    customQueueItems.remove(customQueueItem);
-                    break;
+            if (this.mPlaylistQueues.containsKey(playlistId)) {
+                List<CustomQueueItem> customQueueItems = this.mPlaylistQueues.get(playlistId);
+                for (CustomQueueItem customQueueItem : customQueueItems) {
+                    MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
+                    Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                    if (UtilsString.equals(trackId, track.getId())) {
+                        customQueueItems.remove(customQueueItem);
+                        break;
+                    }
                 }
             }
 
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.mPlaylistMediaItems.get(playlistId);
-            for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
-                Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-                if (UtilsString.equals(trackId, track.getId())) {
-                    mediaItems.remove(mediaItem);
-                    break;
+            if (this.mPlaylistMediaItems.containsKey(playlistId)) {
+                List<MediaBrowserCompat.MediaItem> mediaItems = this.mPlaylistMediaItems.get(playlistId);
+                for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
+                    Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                    if (UtilsString.equals(trackId, track.getId())) {
+                        mediaItems.remove(mediaItem);
+                        break;
+                    }
                 }
             }
         }

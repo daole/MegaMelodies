@@ -27,16 +27,6 @@ public class ScreenFavorites extends ScreenTracks<IPresenterFavorites> implement
     }
 
     @Override
-    protected void retrieveScreenItems(View pView) {
-
-    }
-
-    @Override
-    protected void mapInformationToScreenItems(View pView) {
-
-    }
-
-    @Override
     protected int getTitle() {
         return R.string.title__favorites;
     }

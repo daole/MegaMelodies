@@ -15,11 +15,18 @@
 
         <TextView
             android:id="@+id/lblName"
-            style="@style/TextView.ListItem.Primary.Dark" />
+            android:layout_toRightOf="@id/imgMediaItem"
+            style="@style/TextView.ListItem.Primary.Dark.Name" />
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/lblTracksNum"
             android:layout_below="@id/lblName"
             android:layout_alignLeft="@id/lblName"
+            style="@style/TextView.ListItem.Secondary.Dark.TracksNum" />
+
+        <RelativeLayout
+            android:layout_below="@id/lblTracksNum"
+            android:layout_alignLeft="@id/lblTracksNum"
             style="@style/Container.WrapContent.Vertical.Row" >
 
             <ImageButton

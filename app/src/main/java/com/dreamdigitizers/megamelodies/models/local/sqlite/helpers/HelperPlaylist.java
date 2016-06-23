@@ -67,7 +67,7 @@ public class HelperPlaylist {
                     .withSelection(selection, selectionArgs)
                     .build());
 
-            selection = TablePlaylistSong.COLUMN_NAME___ID + " = ?";
+            selection = TablePlaylist.COLUMN_NAME___ID + " = ?";
             contentProviderOperations.add(ContentProviderOperation.newDelete(ContentProviderMegaMelodies.CONTENT_URI__PLAYLIST)
                     .withSelection(selection, selectionArgs)
                     .build());

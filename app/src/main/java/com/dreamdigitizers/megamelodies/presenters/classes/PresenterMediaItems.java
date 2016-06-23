@@ -65,6 +65,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     public void disconnect() {
         if (this.mMediaBrowser.isConnected()) {
             this.mMediaBrowser.unsubscribe(this.getMediaId());
+            this.mMediaBrowser.unsubscribe(ServicePlayback.MEDIA_ID__PLAYLISTS_ALL);
             this.mMediaBrowser.disconnect();
             this.mMediaController.unregisterCallback(this.mMediaControllerCallback);
         }

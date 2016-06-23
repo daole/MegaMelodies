@@ -92,6 +92,9 @@
     <style name="TextView.ListItem.Secondary.Dark.Artist" parent="TextView.ListItem.Secondary.Dark">
     </style>
 
+    <style name="TextView.ListItem.Secondary.Dark.TracksNum" parent="TextView.ListItem.Secondary.Dark">
+    </style>
+
     <style name="TextView.DurationStart" parent="TextView">
         <item name="android:layout_alignParentLeft">true</item>
     </style>

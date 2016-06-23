@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Container.Full" >
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Container.Full"
+    tools:context=".views.classes.activities.ActivityMain" >
 
     <FrameLayout
         android:id="@+id/placeHolderTracks"

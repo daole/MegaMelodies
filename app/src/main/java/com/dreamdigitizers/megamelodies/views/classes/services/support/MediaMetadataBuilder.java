@@ -25,10 +25,19 @@ public class MediaMetadataBuilder {
 
         String id = pNctSong.getId();
         String name = pNctSong.getName();
-        String singerName = null;
+        String singerName = "";
         List<NctSinger> nctSingers = pNctSong.getSingers();
         if (!nctSingers.isEmpty()) {
-            singerName = nctSingers.get(0).getName();
+            StringBuilder stringBuilder = new StringBuilder();
+            int i = 0;
+            for (NctSinger nctSinger : nctSingers) {
+                if (i > 0) {
+                    stringBuilder.append(", ");
+                }
+                stringBuilder.append(nctSinger.getName());
+                i++;
+            }
+            singerName = stringBuilder.toString();
         }
 
         MediaMetadataCompat mediaMetadata = new MediaMetadataCompat.Builder()
@@ -55,6 +64,17 @@ public class MediaMetadataBuilder {
                 .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, artist)
                 .build();
         mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, track);
+
+        return mediaMetadata;
+    }
+
+    public static MediaMetadataCompat build(Track pTrack) {
+        MediaMetadataCompat mediaMetadata = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, pTrack.getId())
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, pTrack.getName())
+                .putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, pTrack.getArtist())
+                .build();
+        mediaMetadata.getBundle().putSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK, pTrack);
 
         return mediaMetadata;
     }

@@ -1,6 +1,7 @@
 package com.dreamdigitizers.megamelodies.views.interfaces;
 
-import com.dreamdigitizers.androidbaselibrary.views.interfaces.IViewBase;
+import android.support.v4.media.MediaBrowserCompat;
 
-public interface IViewPlaylists extends IViewBase {
+public interface IViewPlaylists extends IViewMediaItems {
+    void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem);
 }

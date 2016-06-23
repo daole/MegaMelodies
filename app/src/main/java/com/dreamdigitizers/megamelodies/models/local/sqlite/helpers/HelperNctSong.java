@@ -138,6 +138,9 @@ public class HelperNctSong {
         }
 
         List<Track> tracks = new ArrayList<>(hashMap.values());
+        for (Track track : tracks) {
+            track.buildData();
+        }
         return tracks;
     }
 }

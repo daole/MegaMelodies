@@ -25,22 +25,43 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
 
     protected FrameLayout mPlaceHolderTracks;
     protected FragmentMediaItems mFragmentMediaItems;
+    protected boolean mIsConnected;
 
     @Override
     public void onStart() {
         super.onStart();
         this.mFragmentMediaItems.setOnItemClickListener(this);
         this.mFragmentMediaItems.setPlaybackControlListener(this);
-        this.mFragmentMediaItems.clearMediaItems();
-        this.mPresenter.connect();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         this.mFragmentMediaItems.setOnItemClickListener(null);
         this.mFragmentMediaItems.setPlaybackControlListener(null);
-        this.mPresenter.disconnect();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean pIsVisibleToUser) {
+        super.setUserVisibleHint(pIsVisibleToUser);
+        if (pIsVisibleToUser) {
+            if (!this.mIsConnected) {
+                if (this.mFragmentMediaItems != null && !(this instanceof ScreenSearch)) {
+                    this.mFragmentMediaItems.clearMediaItems();
+                }
+                this.mPresenter.connect();
+                this.mIsConnected = true;
+            }
+        } else {
+            if (this.mIsConnected) {
+                this.mPresenter.disconnect();
+                this.mIsConnected = false;
+            }
+        }
+    }
+
+    protected boolean shouldSetThisScreenAsCurrentScreen() {
+        return false;
     }
 
     @Override

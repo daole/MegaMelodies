@@ -28,8 +28,8 @@ public class HelperZingSong {
 
     public static List<Track> retrieveFavoriteTracks(Context pContext) {
         String selection = TableZingSong.COLUMN_NAME__IS_FAVORITE + " > 0";
-        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, null, selection, null, null);
-        List<Track> tracks = HelperNctSong.fetchData(cursor);
+        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, null, selection, null, null);
+        List<Track> tracks = HelperZingSong.fetchData(cursor);
         return tracks;
     }
 
@@ -48,7 +48,7 @@ public class HelperZingSong {
             ContentValues contentValues = HelperZingSong.buildContentValues(pZingSong, true);
             String selection = TableZingSong.COLUMN_NAME___ID + " = ?";
             String[] selectionArgs = new String[] { id };
-            pContext.getContentResolver().update(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, contentValues, selection, selectionArgs);
+            pContext.getContentResolver().update(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, contentValues, selection, selectionArgs);
         }
     }
 
@@ -56,7 +56,7 @@ public class HelperZingSong {
         ContentValues contentValues = HelperZingSong.buildContentValues(pZingSong, false);
         String selection = TableZingSong.COLUMN_NAME___ID + " = ?";
         String[] selectionArgs = new String[] { pZingSong.getId() };
-        pContext.getContentResolver().update(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, contentValues, selection, selectionArgs);
+        pContext.getContentResolver().update(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, contentValues, selection, selectionArgs);
     }
 
     public static ContentValues buildContentValues(ZingSong pZingSong, boolean pIsFavorite) {

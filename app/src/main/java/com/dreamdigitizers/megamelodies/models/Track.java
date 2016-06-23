@@ -20,27 +20,7 @@ public class Track extends ModelBase {
 
     public void setOriginalTrack(Serializable pOriginalTrack) {
         this.mOriginalTrack = pOriginalTrack;
-
-        if (this.mOriginalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) this.mOriginalTrack;
-            this.mId = nctSong.getId();
-            this.mName = nctSong.getName();
-            StringBuilder stringBuilder = new StringBuilder();
-            int i = 0;
-            for (NctSinger nctSinger : nctSong.getSingers()) {
-                if (i > 0) {
-                    stringBuilder.append(", ");
-                }
-                stringBuilder.append(nctSinger.getName());
-                i++;
-            }
-            this.mArtist = stringBuilder.toString();
-        } else if (this.mOriginalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) this.mOriginalTrack;
-            this.mId = zingSong.getId();
-            this.mName = zingSong.getName();
-            this.mArtist = zingSong.getArtist();
-        }
+        this.buildData();
     }
 
     public boolean isFavorite() {
@@ -61,5 +41,28 @@ public class Track extends ModelBase {
 
     public String getArtist() {
         return this.mArtist;
+    }
+
+    public void buildData() {
+        if (this.mOriginalTrack instanceof NctSong) {
+            NctSong nctSong = (NctSong) this.mOriginalTrack;
+            this.mId = nctSong.getId();
+            this.mName = nctSong.getName();
+            StringBuilder stringBuilder = new StringBuilder();
+            int i = 0;
+            for (NctSinger nctSinger : nctSong.getSingers()) {
+                if (i > 0) {
+                    stringBuilder.append(", ");
+                }
+                stringBuilder.append(nctSinger.getName());
+                i++;
+            }
+            this.mArtist = stringBuilder.toString();
+        } else if (this.mOriginalTrack instanceof ZingSong) {
+            ZingSong zingSong = (ZingSong) this.mOriginalTrack;
+            this.mId = zingSong.getId();
+            this.mName = zingSong.getName();
+            this.mArtist = zingSong.getArtist();
+        }
     }
 }
