@@ -25,7 +25,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistDialog.DialogPlaylistViewHolder> {
     private Track mTrack;
-    private String mId;
     private MediaBrowserCompat.MediaItem mMediaItemTrack;
     private List<MediaBrowserCompat.MediaItem> mPlaylists;
 
@@ -34,14 +33,6 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
     public AdapterPlaylistDialog(MediaBrowserCompat.MediaItem pTrack, List<MediaBrowserCompat.MediaItem> pPlaylists, IOnAddRemoveButtonClickListener pListener) {
         this.mMediaItemTrack = pTrack;
         this.mTrack = (Track) this.mMediaItemTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-        Serializable originalTrack = this.mTrack.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            this.mId = nctSong.getId();
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            this.mId = zingSong.getId();
-        }
         this.mPlaylists = pPlaylists;
         this.mListener = pListener;
     }
@@ -64,18 +55,10 @@ public class AdapterPlaylistDialog extends RecyclerView.Adapter<AdapterPlaylistD
 
         pHolder.mLblName.setText(playlist.getName());
 
+        String id = this.mTrack.getId();
         boolean isAdded = false;
         for (Track track : playlist.getTracks()) {
-            String id = null;
-            Serializable originalTrack = track.getOriginalTrack();
-            if (originalTrack instanceof NctSong) {
-                NctSong nctSong = (NctSong) originalTrack;
-                id = nctSong.getId();
-            } else if (originalTrack instanceof ZingSong) {
-                ZingSong zingSong = (ZingSong) originalTrack;
-                id = zingSong.getId();
-            }
-            if (UtilsString.equals(id, this.mId)) {
+            if (UtilsString.equals(id, track.getId())) {
                 isAdded = true;
                 break;
             }

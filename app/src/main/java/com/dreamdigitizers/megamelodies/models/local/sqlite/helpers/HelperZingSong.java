@@ -26,6 +26,13 @@ public class HelperZingSong {
         }
     }
 
+    public static List<Track> retrieveFavoriteTracks(Context pContext) {
+        String selection = TableZingSong.COLUMN_NAME__IS_FAVORITE + " > 0";
+        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, null, selection, null, null);
+        List<Track> tracks = HelperNctSong.fetchData(cursor);
+        return tracks;
+    }
+
     public static Uri insert(Context pContext, ZingSong pZingSong, boolean pIsFavorite) {
         ContentValues contentValues = HelperZingSong.buildContentValues(pZingSong, pIsFavorite);
         Uri uri = pContext.getContentResolver().insert(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, contentValues);

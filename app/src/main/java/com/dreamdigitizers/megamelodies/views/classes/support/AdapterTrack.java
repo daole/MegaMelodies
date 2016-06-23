@@ -58,55 +58,27 @@ public class AdapterTrack extends AdapterPlaylist {
     public void onBindViewHolder(PlaylistViewHolder pHolder, int pPosition) {
         TrackViewHolder trackViewHolder = (TrackViewHolder) pHolder;
 
-        String id = "";
-        String name = "";
-        String artist = "";
-
         MediaBrowserCompat.MediaItem mediaItem = this.mMediaItems.get(pPosition);
         MediaDescriptionCompat mediaDescription = mediaItem.getDescription();
         Track track = (Track) mediaDescription.getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-        Serializable originalTrack = track.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            id = nctSong.getId();
-            name = nctSong.getName();
-            List<NctSinger> nctSingers = nctSong.getSingers();
-            if (nctSingers.size() > 0) {
-                artist = nctSingers.get(0).getName();
-            }
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            id = zingSong.getId();
-            name = zingSong.getName();
-            artist = zingSong.getArtist();
-        }
 
         Bitmap bitmap = mediaDescription.getIconBitmap();
         if (bitmap != null) {
             trackViewHolder.mImgMediaItem.setImageBitmap(bitmap);
         }
-        trackViewHolder.mLblName.setText(name);
-        trackViewHolder.mLblArtist.setText(artist);
+        trackViewHolder.mLblName.setText(track.getName());
+        trackViewHolder.mLblArtist.setText(track.getArtist());
         trackViewHolder.mImgFavorite.setVisibility(track.isFavorite() ? View.VISIBLE : View.GONE);
         trackViewHolder.mMediaItem = mediaItem;
 
         Drawable drawable = null;
         if (this.mMediaMetadata != null) {
-            String currentId = "";
             Track currentTrack = (Track) this.mMediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
             if (currentTrack == null && Build.VERSION.SDK_INT >= 21) {
                 currentTrack = Share.getCurrentTrack();
             }
 
-            Serializable currentOriginalTrack = currentTrack.getOriginalTrack();
-            if (currentOriginalTrack instanceof NctSong) {
-                NctSong currentNctSong = (NctSong) currentOriginalTrack;
-                currentId = currentNctSong.getId();
-            } else if (currentOriginalTrack instanceof ZingSong) {
-                ZingSong currentZingSong = (ZingSong) currentOriginalTrack;
-                currentId = currentZingSong.getId();
-            }
-            if (currentTrack != null && UtilsString.equals(id, currentId)) {
+            if (currentTrack != null && UtilsString.equals(track.getId(), currentTrack.getId())) {
                 int state = PlaybackStateCompat.STATE_PAUSED;
                 if (this.mPlaybackState != null) {
                     switch (this.mPlaybackState.getState()) {

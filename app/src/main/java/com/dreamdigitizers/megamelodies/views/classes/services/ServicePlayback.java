@@ -40,6 +40,7 @@ import com.dreamdigitizers.megamelodies.views.interfaces.IViewRx;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalPlayback.IOnMediaPlayerPreparedListener {
@@ -54,7 +55,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private static final String MEDIA_ID__PLAYLISTS_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlists";
     public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__PLAYLISTS_ROOT + "?offset=%d&pageSize=%d";
     private static final String MEDIA_ID__PLAYLIST_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlist";
-    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__PLAYLIST_ROOT + "?offset=%d&pageSize=%d";
+    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__PLAYLIST_ROOT + "?playlistId=%s&offset=%d&pageSize=%d";
 
     public static final String CUSTOM_ACTION__FAVORITE = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.FAVORITE";
     public static final String CUSTOM_ACTION__CREATE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.CREATE_PLAYLIST";
@@ -85,18 +86,16 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private Result mSearchResult;
 
     private List<CustomQueueItem> mActiveQueue;
+
     private List<CustomQueueItem> mSearchQueue;
     private List<CustomQueueItem> mFavoritesQueue;
     private List<Playlist> mPlaylists;
+    private HashMap<Integer, List<CustomQueueItem>> mPlaylistQueues;
 
     private List<MediaBrowserCompat.MediaItem> mSearchMediaItems;
     private List<MediaBrowserCompat.MediaItem> mFavoritesMediaItems;
     private List<MediaBrowserCompat.MediaItem> mPlaylistsMediaItems;
-
-    private boolean mIsSearchMore;
-    private boolean mIsFavoritesMore;
-    private boolean mIsPlaylistsMore;
-    private boolean mIsPlaylistMore;
+    private HashMap<Integer, List<MediaBrowserCompat.MediaItem>> mPlaylistMediaItems;
 
     private ViewPlayback mView;
     private IPresenterPlayback mPresenter;
@@ -117,15 +116,12 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         this.mSearchQueue = new ArrayList<>();
         this.mFavoritesQueue = new ArrayList<>();
         this.mPlaylists = new ArrayList<>();
+        this.mPlaylistQueues = new HashMap<>();
 
         this.mSearchMediaItems = new ArrayList<>();
         this.mFavoritesMediaItems = new ArrayList<>();
         this.mPlaylistsMediaItems = new ArrayList<>();
-
-        this.mIsSearchMore = true;
-        this.mIsFavoritesMore = true;
-        this.mIsPlaylistsMore = true;
-        this.mIsPlaylistMore = true;
+        this.mPlaylistMediaItems = new HashMap<>();
 
         this.mView = new ViewPlayback();
         this.mPresenter = (IPresenterPlayback) PresenterFactory.createPresenter(IPresenterPlayback.class, this.mView);
@@ -313,7 +309,6 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         if (offset < 0) {
             offset = 0;
         }
-
         int startIndex = offset * pageSize;
         int endIndex = (offset + 1) * pageSize;
 
@@ -322,25 +317,19 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 && UtilsString.equals(type, this.mLastType)
                 && this.mLastNum == num
                 && !this.mSearchMediaItems.isEmpty()) {
+            List<MediaBrowserCompat.MediaItem> mediaItems;
             int size = this.mSearchMediaItems.size();
             if (startIndex >= size) {
-                this.mIsSearchMore = false;
-                pResult.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
-                return;
-            }
-            if (endIndex > size) {
-                if (!this.mIsSearchMore) {
-                    pResult.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
-                    return;
+                mediaItems = new ArrayList<>();
+            } else {
+                if (endIndex > size) {
+                    endIndex = size;
                 }
-                endIndex = size;
-                this.mIsSearchMore = false;
+                mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
             }
 
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
             pResult.sendResult(mediaItems);
         } else {
-            this.mIsSearchMore = true;
 
             this.mLastServerId = serverId;
             this.mLastQuery = query;
@@ -369,26 +358,107 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     }
 
     private void loadChildrenFavorites(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
+        this.retrieveFavoriteTracksIfEmpty();
 
+        int offset = Integer.parseInt(pUri.getQueryParameter("offset"));
+        int pageSize = Integer.parseInt(pUri.getQueryParameter("pageSize"));
+
+        if (offset < 0) {
+            offset = 0;
+        }
+        int startIndex = offset * pageSize;
+        int endIndex = (offset + 1) * pageSize;
+
+        List<MediaBrowserCompat.MediaItem> mediaItems;
+        int size = this.mFavoritesMediaItems.size();
+        if (startIndex >= size) {
+            mediaItems = new ArrayList<>();
+        } else {
+            if (endIndex > size) {
+                endIndex = size;
+            }
+            mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
+        }
+
+        pResult.sendResult(mediaItems);
+        this.mActiveMode = ServicePlayback.ACTIVE_MODE__FAVORITES;
+        this.mActiveQueue = this.mFavoritesQueue;
     }
 
     private void loadChildrenPlaylistsAll(Result<List<MediaBrowserCompat.MediaItem>> pResult) {
-        List<Playlist> playlists = this.mPresenter.retrieveAllPlaylists();
-        this.mPlaylists.clear();
-        this.mPlaylists.addAll(playlists);
-        this.mIsPlaylistsMore = false;
-        List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(this.mPlaylists);
-        this.mPlaylistsMediaItems.clear();
-        this.mPlaylistsMediaItems.addAll(mediaItems);
-        pResult.sendResult(mediaItems);
+        this.retrievePlaylistsIfEmpty();
+        pResult.sendResult(this.mPlaylistsMediaItems);
     }
 
     private void loadChildrenPlaylists(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
+        this.retrievePlaylistsIfEmpty();
 
+        int offset = Integer.parseInt(pUri.getQueryParameter("offset"));
+        int pageSize = Integer.parseInt(pUri.getQueryParameter("pageSize"));
+
+        if (offset < 0) {
+            offset = 0;
+        }
+        int startIndex = offset * pageSize;
+        int endIndex = (offset + 1) * pageSize;
+
+        List<MediaBrowserCompat.MediaItem> mediaItems;
+        int size = this.mPlaylistsMediaItems.size();
+        if (startIndex >= size) {
+            mediaItems = new ArrayList<>();
+        } else {
+            if (endIndex > size) {
+                endIndex = size;
+            }
+            mediaItems = this.mPlaylistsMediaItems.subList(startIndex, endIndex);
+        }
+
+        pResult.sendResult(mediaItems);
+        this.mActiveMode = ServicePlayback.ACTIVE_MODE__PLAYLISTS;
+        this.mActiveQueue = null;
     }
 
     private void loadChildrenPlaylist(Result<List<MediaBrowserCompat.MediaItem>> pResult, Uri pUri) {
+        this.retrievePlaylistsIfEmpty();
 
+        int playlistId = Integer.parseInt(pUri.getQueryParameter("playlistId"));
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        if (this.mPlaylistMediaItems.containsKey(playlistId)) {
+            mediaItems = this.mPlaylistMediaItems.get(playlistId);
+        } else {
+            for (Playlist playlist : this.mPlaylists) {
+                if (playlist.getId() == playlistId) {
+                    List<CustomQueueItem> playingQueue = new ArrayList<>();
+                    mediaItems = this.buildMediaItemList(playlist.getTracks(), playingQueue, false);
+                    this.mPlaylistQueues.put(playlistId, playingQueue);
+                    this.mPlaylistMediaItems.put(playlistId, mediaItems);
+                    break;
+                }
+            }
+        }
+
+        int offset = Integer.parseInt(pUri.getQueryParameter("offset"));
+        int pageSize = Integer.parseInt(pUri.getQueryParameter("pageSize"));
+
+        if (offset < 0) {
+            offset = 0;
+        }
+        int startIndex = offset * pageSize;
+        int endIndex = (offset + 1) * pageSize;
+
+        int size = mediaItems.size();
+        if (startIndex >= size) {
+            mediaItems = new ArrayList<>();
+        } else {
+            if (endIndex > size) {
+                endIndex = size;
+            }
+            mediaItems = mediaItems.subList(startIndex, endIndex);
+        }
+
+        pResult.sendResult(mediaItems);
+        this.mActiveMode = ServicePlayback.ACTIVE_MODE__PLAYLIST;
+        this.mActiveQueue = this.mPlaylistQueues.get(playlistId);
     }
 
     private MediaBrowserCompat.MediaItem buildChildrenRootMediaItem(String pMediaId, int pTitleStringId, String pUri, int pSubtitleStringId) {
@@ -400,11 +470,25 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 .build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
     }
 
+    private void retrieveFavoriteTracksIfEmpty() {
+        if (this.mFavoritesMediaItems.isEmpty()) {
+            List<Track> tracks = this.mPresenter.retrieveFavoriteTracks();
+            this.mFavoritesMediaItems = this.buildMediaItemList(tracks, this.mFavoritesQueue, false);
+        }
+    }
+
+    private void retrievePlaylistsIfEmpty() {
+        if (this.mPlaylistsMediaItems.isEmpty()) {
+            this.mPlaylists = this.mPresenter.retrieveAllPlaylists();
+            this.mPlaylistsMediaItems = this.buildMediaItemList(this.mPlaylists);
+        }
+    }
+
     private List<MediaBrowserCompat.MediaItem> buildMediaItemList(NctSearchResult pNctSearchResult, List<CustomQueueItem> pPlayingQueue, boolean pIsAddToTop) {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         List<CustomQueueItem> customQueueItems = new ArrayList<>();
 
-        long customQueueItemsSize = customQueueItems.size();
+        long playingQueueSize = pPlayingQueue.size();
         NctData nctData = pNctSearchResult.getData();
         if (nctData != null) {
             long i = 0;
@@ -416,7 +500,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
                 mediaItems.add(mediaItem);
 
-                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, customQueueItemsSize + i);
+                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, playingQueueSize + i);
                 CustomQueueItem customQueueItem = new CustomQueueItem(queueItem, mediaMetadata, null);
                 customQueueItems.add(customQueueItem);
 
@@ -424,8 +508,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             }
         }
 
-        customQueueItemsSize = customQueueItems.size();
-        if (customQueueItemsSize > 0) {
+        if (customQueueItems.size() > 0) {
             if (pIsAddToTop) {
                 pPlayingQueue.addAll(0, customQueueItems);
             } else {
@@ -440,7 +523,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         List<CustomQueueItem> customQueueItems = new ArrayList<>();
 
-        long customQueueItemsSize = customQueueItems.size();
+        long playingQueueSize = pPlayingQueue.size();
         List<ZingData> zingDataList = pZingSearchResult.getDataList();
         ZingData zingData = zingDataList.isEmpty() ? null : zingDataList.get(0);
         if (zingData != null) {
@@ -453,7 +536,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
                 mediaItems.add(mediaItem);
 
-                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, customQueueItemsSize + i);
+                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, playingQueueSize + i);
                 CustomQueueItem customQueueItem = new CustomQueueItem(queueItem, mediaMetadata, null);
                 customQueueItems.add(customQueueItem);
 
@@ -461,8 +544,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             }
         }
 
-        customQueueItemsSize = customQueueItems.size();
-        if (customQueueItemsSize > 0) {
+        if (customQueueItems.size() > 0) {
             if (pIsAddToTop) {
                 pPlayingQueue.addAll(0, customQueueItems);
             } else {
@@ -471,6 +553,47 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         }
 
         return mediaItems;
+    }
+
+    private List<MediaBrowserCompat.MediaItem> buildMediaItemList(List<Track> pTracks, List<CustomQueueItem> pPlayingQueue, boolean pIsAddToTop) {
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        List<CustomQueueItem> customQueueItems = new ArrayList<>();
+
+        long playingQueueSize = pPlayingQueue.size();
+        long i = 0;
+        for (Track track : pTracks) {
+            MediaMetadataCompat mediaMetadata = null;
+            Serializable originalTrack = track.getOriginalTrack();
+            if (originalTrack instanceof NctSong) {
+                NctSong nctSong = (NctSong) originalTrack;
+                mediaMetadata = MediaMetadataBuilder.build(nctSong);
+            } else if (originalTrack instanceof ZingSong) {
+                ZingSong zingSong = (ZingSong) originalTrack;
+                mediaMetadata = MediaMetadataBuilder.build(zingSong);
+            }
+
+            if (mediaMetadata != null) {
+                MediaDescriptionCompat mediaDescription = MediaMetadataBuilder.build(mediaMetadata);
+                MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescription, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+                mediaItems.add(mediaItem);
+
+                MediaSessionCompat.QueueItem queueItem = new MediaSessionCompat.QueueItem(mediaDescription, playingQueueSize + i);
+                CustomQueueItem customQueueItem = new CustomQueueItem(queueItem, mediaMetadata, null);
+                customQueueItems.add(customQueueItem);
+
+                i++;
+            }
+        }
+
+        if (customQueueItems.size() > 0) {
+            if (pIsAddToTop) {
+                pPlayingQueue.addAll(0, customQueueItems);
+            } else {
+                pPlayingQueue.addAll(customQueueItems);
+            }
+        }
+
+        return  mediaItems;
     }
 
     private List<MediaBrowserCompat.MediaItem> buildMediaItemList(List<Playlist> pPlaylists) {
@@ -492,9 +615,11 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         if (track.isFavorite()) {
             this.mPresenter.unfavorite(track);
             track.setFavorite(false);
+            this.unfavoriteTrack(track);
         } else {
             this.mPresenter.favorite(track);
             track.setFavorite(true);
+            this.favoriteTrack(track);
         }
         this.sendFavoriteActionResult(track);
     }
@@ -502,13 +627,15 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private void processCreatePlaylistRequest(Bundle pExtras) {
         Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
         String playlistName = pExtras.getString(Constants.BUNDLE_KEY__PLAYLIST_NAME);
-        this.mPresenter.createPlaylist(track, playlistName);
+        Playlist playlist = this.mPresenter.createPlaylist(track, playlistName);
+        this.addPlaylist(playlist);
         this.sendCreatePlaylistActionResult(track);
     }
 
     private void processDeletePlaylistRequest(Bundle pExtras) {
         Playlist playlist = (Playlist) pExtras.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         this.mPresenter.deletePlaylist(playlist);
+        this.deletePlaylist(playlist);
         this.sendDeletePlaylistActionResult(playlist);
     }
 
@@ -516,6 +643,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
         Playlist playlist = (Playlist) pExtras.getSerializable(Constants.BUNDLE_KEY__PLAYLIST);
         this.mPresenter.addToPlaylist(track, playlist);
+        this.addTrackToPlaylist(track, playlist);
         this.sendAddToPlaylistActionResult(track, playlist);
     }
 
@@ -523,39 +651,119 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         Track track = (Track) pExtras.getSerializable(Constants.BUNDLE_KEY__TRACK);
         Playlist playlist = (Playlist) pExtras.getSerializable(Constants.BUNDLE_KEY__PLAYLIST);
         this.mPresenter.removeFromPlaylist(track, playlist);
+        this.removeTrackFromPlaylist(track, playlist);
         this.sendRemoveFromPlaylistActionResult(track, playlist);
     }
 
-    private void sendFavoriteActionResult(Track pTrack) {
-        String trackId = null;
-        Serializable originalTrack = pTrack.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            trackId = nctSong.getId();
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            trackId = zingSong.getId();
-        }
-        if (!UtilsString.isEmpty(trackId)) {
-            String eventAction = String.format(ServicePlayback.EVENT_URI__FAVORITE, ServicePlayback.CUSTOM_ACTION__FAVORITE, trackId, pTrack.isFavorite());
-            this.getMediaSession().sendSessionEvent(eventAction, null);
+    private void favoriteTrack(Track pTrack) {
+        if (!this.mFavoritesMediaItems.isEmpty()) {
+            List<CustomQueueItem> customQueueItems = new ArrayList<>();
+            List<Track> tracks = new ArrayList<>();
+            tracks.add(pTrack);
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(tracks, customQueueItems, false);
+            this.mFavoritesMediaItems.addAll(mediaItems);
+            this.mFavoritesQueue.addAll(customQueueItems);
         }
     }
 
+    private void unfavoriteTrack(Track pTrack) {
+        if (!this.mFavoritesMediaItems.isEmpty()) {
+            String id = pTrack.getId();
+            int i = 0;
+            for (CustomQueueItem customQueueItem : this.mFavoritesQueue) {
+                MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
+                Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                if (UtilsString.equals(id, track.getId())) {
+                    this.mFavoritesQueue.remove(i);
+                    this.mFavoritesMediaItems.remove(i);
+                    break;
+                }
+                i++;
+            }
+        }
+    }
+
+    private void addPlaylist(Playlist pPlaylist) {
+        if (!this.mPlaylists.isEmpty()) {
+            this.mPlaylists.add(pPlaylist);
+        }
+    }
+
+    private void deletePlaylist(Playlist pPlaylist) {
+        if (!this.mPlaylists.isEmpty()) {
+            int id = pPlaylist.getId();
+            for (Playlist playlist : this.mPlaylists) {
+                if (playlist.getId() == id) {
+                    this.mPlaylists.remove(playlist);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void addTrackToPlaylist(Track pTrack, Playlist pPlaylist) {
+        if (!this.mPlaylists.isEmpty()) {
+            int id = pPlaylist.getId();
+            for (Playlist playlist : this.mPlaylists) {
+                if (id == playlist.getId()) {
+                    playlist.getTracks().add(pTrack);
+                    List<CustomQueueItem> customQueueItems = new ArrayList<>();
+                    List<Track> tracks = new ArrayList<>();
+                    tracks.add(pTrack);
+                    List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(tracks, customQueueItems, false);
+                    this.mPlaylistMediaItems.get(id).addAll(mediaItems);
+                    this.mPlaylistQueues.get(id).addAll(customQueueItems);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void removeTrackFromPlaylist(Track pTrack, Playlist pPlaylist) {
+        if (!this.mPlaylists.isEmpty()) {
+            String trackId = pTrack.getId();
+            int playlistId = pPlaylist.getId();
+            for (Playlist playlist : this.mPlaylists) {
+                if (playlistId == playlist.getId()) {
+                    for (Track track : playlist.getTracks()) {
+                        if (UtilsString.equals(trackId, track.getId())) {
+                            playlist.getTracks().remove(track);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            List<CustomQueueItem> customQueueItems = this.mPlaylistQueues.get(playlistId);
+            for (CustomQueueItem customQueueItem : customQueueItems) {
+                MediaMetadataCompat mediaMetadata = customQueueItem.getMediaMetadata();
+                Track track = (Track) mediaMetadata.getBundle().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                if (UtilsString.equals(trackId, track.getId())) {
+                    customQueueItems.remove(customQueueItem);
+                    break;
+                }
+            }
+
+            List<MediaBrowserCompat.MediaItem> mediaItems = this.mPlaylistMediaItems.get(playlistId);
+            for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
+                Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                if (UtilsString.equals(trackId, track.getId())) {
+                    mediaItems.remove(mediaItem);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void sendFavoriteActionResult(Track pTrack) {
+        String eventAction = String.format(ServicePlayback.EVENT_URI__FAVORITE, ServicePlayback.CUSTOM_ACTION__FAVORITE, pTrack.getId(), pTrack.isFavorite());
+        this.getMediaSession().sendSessionEvent(eventAction, null);
+    }
+
     private void sendCreatePlaylistActionResult(Track pTrack) {
-        String trackId = null;
-        Serializable originalTrack = pTrack.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            trackId = nctSong.getId();
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            trackId = zingSong.getId();
-        }
-        if (!UtilsString.isEmpty(trackId)) {
-            String eventAction = String.format(ServicePlayback.EVENT_URI__CREATE_PLAYLIST, ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, trackId);
-            this.getMediaSession().sendSessionEvent(eventAction, null);
-        }
+        String eventAction = String.format(ServicePlayback.EVENT_URI__CREATE_PLAYLIST, ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, pTrack.getId());
+        this.getMediaSession().sendSessionEvent(eventAction, null);
     }
 
     private void sendDeletePlaylistActionResult(Playlist pPlaylist) {
@@ -564,49 +772,23 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     }
 
     private void sendAddToPlaylistActionResult(Track pTrack, Playlist pPlaylist) {
-        String trackId = null;
-        Serializable originalTrack = pTrack.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            trackId = nctSong.getId();
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            trackId = zingSong.getId();
-        }
-        if (!UtilsString.isEmpty(trackId)) {
-            String eventAction = String.format(ServicePlayback.EVENT_URI__ADD_TO_PLAYLIST, ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST, trackId, pPlaylist.getId());
-            this.getMediaSession().sendSessionEvent(eventAction, null);
-        }
+        String eventAction = String.format(ServicePlayback.EVENT_URI__ADD_TO_PLAYLIST, ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST, pTrack.getId(), pPlaylist.getId());
+        this.getMediaSession().sendSessionEvent(eventAction, null);
     }
 
     private void sendRemoveFromPlaylistActionResult(Track pTrack, Playlist pPlaylist) {
-        String trackId = null;
-        Serializable originalTrack = pTrack.getOriginalTrack();
-        if (originalTrack instanceof NctSong) {
-            NctSong nctSong = (NctSong) originalTrack;
-            trackId = nctSong.getId();
-        } else if (originalTrack instanceof ZingSong) {
-            ZingSong zingSong = (ZingSong) originalTrack;
-            trackId = zingSong.getId();
-        }
-        if (!UtilsString.isEmpty(trackId)) {
-            String eventAction = String.format(ServicePlayback.EVENT_URI__REMOVE_FROM_PLAYLIST, ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST, trackId, pPlaylist.getId());
-            this.getMediaSession().sendSessionEvent(eventAction, null);
-        }
+        String eventAction = String.format(ServicePlayback.EVENT_URI__REMOVE_FROM_PLAYLIST, ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST, pTrack.getId(), pPlaylist.getId());
+        this.getMediaSession().sendSessionEvent(eventAction, null);
     }
 
-    private void onRxSearchNext(List<MediaBrowserCompat.MediaItem> pMediaItems) {
-        this.mSearchMediaItems.addAll(pMediaItems);
-
+    private void onRxSearchNext() {
         List<MediaBrowserCompat.MediaItem> mediaItems;
         int size = this.mSearchMediaItems.size();
         if (this.mLastStartIndex >= size) {
-            this.mIsSearchMore = false;
             mediaItems = new ArrayList<>();
         } else {
             if (this.mLastEndIndex > size) {
                 this.mLastEndIndex = size;
-                this.mIsSearchMore = false;
             }
             mediaItems = this.mSearchMediaItems.subList(this.mLastStartIndex, this.mLastEndIndex);
 
@@ -624,15 +806,15 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
 
     private void onRxNctSearchNext(NctSearchResult pNctSearchResult) {
         if (this.mSearchResult != null) {
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pNctSearchResult, this.mSearchQueue, false);
-            this.onRxSearchNext(mediaItems);
+            this.mSearchMediaItems = this.buildMediaItemList(pNctSearchResult, this.mSearchQueue, false);
+            this.onRxSearchNext();
         }
     }
 
     private void onRxZingSearchNext(ZingSearchResult pZingSearchResult) {
         if (this.mSearchResult != null) {
-            List<MediaBrowserCompat.MediaItem> mediaItems = this.buildMediaItemList(pZingSearchResult, this.mSearchQueue, false);
-            this.onRxSearchNext(mediaItems);
+            this.mSearchMediaItems = this.buildMediaItemList(pZingSearchResult, this.mSearchQueue, false);
+            this.onRxSearchNext();
         }
     }
 

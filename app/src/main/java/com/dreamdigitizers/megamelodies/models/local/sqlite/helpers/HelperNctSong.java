@@ -34,6 +34,15 @@ public class HelperNctSong {
         }
     }
 
+    public static List<Track> retrieveFavoriteTracks(Context pContext) {
+        String[] projection = new String[0];
+        projection = TableNctSong.getColumnsForJoin().toArray(projection);
+        String selection = TableNctSong.TABLE_NAME + "." + TableNctSong.COLUMN_NAME__IS_FAVORITE + " > 0";
+        Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, projection, selection, null, null);
+        List<Track> tracks = HelperNctSong.fetchData(cursor);
+        return tracks;
+    }
+
     public static ContentProviderResult[] insert(Context pContext, NctSong pNctSong, boolean pIsFavorite) {
         try {
             ArrayList<ContentProviderOperation> contentProviderOperations = new ArrayList<>();

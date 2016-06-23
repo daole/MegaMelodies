@@ -84,22 +84,9 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
     public void favorite(MediaBrowserCompat.MediaItem pMediaItem) {
         if (this.mTransportControls != null) {
             Bundle bundle =  pMediaItem.getDescription().getExtras();
-
-            String id = null;
             Track track = (Track) bundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-            Serializable originalTrack = track.getOriginalTrack();
-            if (originalTrack instanceof NctSong) {
-                NctSong nctSong = (NctSong) originalTrack;
-                id = nctSong.getId();
-            } else if (originalTrack instanceof ZingSong) {
-                ZingSong zingSong = (ZingSong) originalTrack;
-                id = zingSong.getId();
-            }
-
-            if (!UtilsString.isEmpty(id)) {
-                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(id, track);
-                this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__FAVORITE, bundle);
-            }
+            this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(track.getId(), track);
+            this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__FAVORITE, bundle);
         }
     }
 
@@ -118,21 +105,10 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
                     view.showNetworkProgress();
                 }
                 Track track = (Track) pTrack.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-                Serializable originalTrack = track.getOriginalTrack();
                 Bundle bundle = new Bundle();
-
-                String id = null;
-                if (originalTrack instanceof NctSong) {
-                    NctSong nctSong = (NctSong) originalTrack;
-                    id = nctSong.getId();
-                } else if (originalTrack instanceof ZingSong) {
-                    ZingSong zingSong = (ZingSong) originalTrack;
-                    zingSong.getId();
-                }
-
                 bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
                 bundle.putString(Constants.BUNDLE_KEY__PLAYLIST_NAME, pPlaylistName);
-                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST).put(id, track);
+                this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST).put(track.getId(), track);
                 this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST, bundle);
             }
         }

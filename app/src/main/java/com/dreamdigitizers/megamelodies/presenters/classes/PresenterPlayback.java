@@ -1,6 +1,7 @@
 package com.dreamdigitizers.megamelodies.presenters.classes;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.dreamdigitizers.androidbaselibrary.utilities.UtilsDialog;
 import com.dreamdigitizers.androiddatafetchingapisclient.core.Api;
@@ -179,6 +180,20 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
     }
 
     @Override
+    public List<Track> retrieveFavoriteTracks() {
+        IViewPlayback view = this.getView();
+        List<Track> favoriteTracks = new ArrayList<>();
+        if (view != null) {
+            Context context = view.getViewContext();
+            List<Track> favoriteZingTracks = HelperZingSong.retrieveFavoriteTracks(context);
+            favoriteTracks.addAll(favoriteZingTracks);
+            List<Track> favoriteNctTracks = HelperNctSong.retrieveFavoriteTracks(context);
+            favoriteTracks.addAll(favoriteNctTracks);
+        }
+        return favoriteTracks;
+    }
+
+    @Override
     public List<Playlist> retrieveAllPlaylists() {
         IViewPlayback view = this.getView();
         if (view != null) {
@@ -242,12 +257,22 @@ class PresenterPlayback extends PresenterRx<IViewPlayback> implements IPresenter
     }
 
     @Override
-    public void createPlaylist(Track pTrack, String pPlaylistName) {
+    public Playlist createPlaylist(Track pTrack, String pPlaylistName) {
         IViewPlayback view = this.getView();
         if (view != null) {
             Context context = view.getViewContext();
-            HelperPlaylist.insert(context, pTrack, pPlaylistName);
+            Uri uri = HelperPlaylist.insert(context, pTrack, pPlaylistName);
+
+            int playlistId = Integer.parseInt(uri.getLastPathSegment());
+            List<Track> tracks = new ArrayList<>();
+            tracks.add(pTrack);
+            Playlist playlist = new Playlist();
+            playlist.setId(playlistId);
+            playlist.setName(pPlaylistName);
+            playlist.setTracks(tracks);
+            return playlist;
         }
+        return null;
     }
 
     @Override
