@@ -19,6 +19,7 @@ import java.util.HashMap;
 class PresenterPlaylists extends PresenterMediaItems<IViewPlaylists> implements IPresenterPlaylists {
     public PresenterPlaylists(IViewPlaylists pView) {
         super(pView);
+        this.mTransactionActions.put(ServicePlayback.CUSTOM_ACTION__DELETE_PLAYLIST, new HashMap<String, Object>());
     }
 
     @Override
@@ -64,10 +65,10 @@ class PresenterPlaylists extends PresenterMediaItems<IViewPlaylists> implements 
     private void handleDeletePlaylistEvent(Uri pUri) {
         IViewPlaylists view = this.getView();
         if (view != null) {
-            int playlistId = Integer.parseInt(pUri.getQueryParameter("playlistId"));
+            String id = pUri.getQueryParameter("playlistId");
             HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__DELETE_PLAYLIST);
-            MediaBrowserCompat.MediaItem mediaItem = (MediaBrowserCompat.MediaItem) transactions.get(playlistId);
-            transactions.remove(playlistId);
+            MediaBrowserCompat.MediaItem mediaItem = (MediaBrowserCompat.MediaItem) transactions.get(id);
+            transactions.remove(id);
             view.removeMediaItem(mediaItem);
         }
     }
