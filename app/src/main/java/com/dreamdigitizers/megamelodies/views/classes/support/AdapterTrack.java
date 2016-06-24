@@ -91,6 +91,8 @@ public class AdapterTrack extends AdapterPlaylist {
                 trackViewHolder.mImgPlaybackStatus.setImageDrawable(animationDrawable);
                 if (state == PlaybackStateCompat.STATE_PLAYING) {
                     animationDrawable.start();
+                } else {
+                    animationDrawable.stop();
                 }
             }
         }

@@ -220,4 +220,7 @@
         <item name="android:layout_marginTop">@dimen/margin</item>
         <item name="android:layout_marginBottom">@dimen/margin</item>
     </style>
+
+    <style name="PlaceHolder.PlaylistScreen" parent="Container.WrapContent">
+    </style>
 </resources>
