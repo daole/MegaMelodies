@@ -5,11 +5,13 @@ import com.dreamdigitizers.androidbaselibrary.views.interfaces.IViewBase;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterFavorites;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterMain;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlayback;
+import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlaylist;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterPlaylists;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewFavorites;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewMain;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlayback;
+import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlaylist;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlaylists;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewSearch;
 
@@ -33,6 +35,10 @@ public class PresenterFactory {
 
         if(pPresenterClass.isAssignableFrom(IPresenterPlaylists.class)) {
             return new PresenterPlaylists((IViewPlaylists) pView);
+        }
+
+        if(pPresenterClass.isAssignableFrom(IPresenterPlaylist.class)) {
+            return new PresenterPlaylist((IViewPlaylist) pView);
         }
 
         throw new RuntimeException("There is no such Presenter class.");

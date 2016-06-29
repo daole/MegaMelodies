@@ -50,12 +50,12 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private static final String MEDIA_ID__SEARCH_ROOT = ServicePlayback.MEDIA_ID__ROOT + "search";
     public static final String MEDIA_ID__SEARCH = ServicePlayback.MEDIA_ID__SEARCH_ROOT + "?serverId=%s&query=%s&offset=%s&pageSize=%s&type=%s&num=%s";
     private static final String MEDIA_ID__FAVORITES_ROOT = ServicePlayback.MEDIA_ID__ROOT + "favorites";
-    public static final String MEDIA_ID__FAVORITES = ServicePlayback.MEDIA_ID__FAVORITES_ROOT + "?offset=%d&pageSize=%d";
+    public static final String MEDIA_ID__FAVORITES = ServicePlayback.MEDIA_ID__FAVORITES_ROOT + "?offset=%s&pageSize=%s";
     public static final String MEDIA_ID__PLAYLISTS_ALL = ServicePlayback.MEDIA_ID__ROOT + "playlistsAll";
     private static final String MEDIA_ID__PLAYLISTS_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlists";
-    public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__PLAYLISTS_ROOT + "?offset=%d&pageSize=%d";
+    public static final String MEDIA_ID__PLAYLISTS = ServicePlayback.MEDIA_ID__PLAYLISTS_ROOT + "?offset=%s&pageSize=%s";
     private static final String MEDIA_ID__PLAYLIST_ROOT = ServicePlayback.MEDIA_ID__ROOT + "playlist";
-    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__PLAYLIST_ROOT + "?playlistId=%s&offset=%d&pageSize=%d";
+    public static final String MEDIA_ID__PLAYLIST = ServicePlayback.MEDIA_ID__PLAYLIST_ROOT + "?playlistId=%s&offset=%s&pageSize=%s";
 
     public static final String CUSTOM_ACTION__FAVORITE = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.FAVORITE";
     public static final String CUSTOM_ACTION__CREATE_PLAYLIST = "com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback.CREATE_PLAYLIST";

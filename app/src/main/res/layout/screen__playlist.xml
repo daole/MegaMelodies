@@ -9,8 +9,4 @@
         android:id="@+id/placeHolderTracks"
         style="@style/Container.Full" />
 
-    <FrameLayout
-        android:id="@+id/placeHolderPlaylistScreen"
-        style="@style/PlaceHolder.PlaylistScreen" />
-
 </RelativeLayout>

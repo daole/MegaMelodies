@@ -46,7 +46,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
         V view = this.getView();
         if (view != null) {
             if (!this.mMediaBrowser.isConnected()) {
-                if (this.isLoadDataOnStart()) {
+                if (this.isLoadDataOnConnection()) {
                     view.showNetworkProgress();
                     this.load(this.getMediaId());
                 }
@@ -200,9 +200,9 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
                 if (errorMessageResourceId > 0) {
                     view.showMessage(errorMessageResourceId, R.string.blank, null);
                 }
-                if (Integer.parseInt(errorCode) >= 0) {
+                /*if (Integer.parseInt(errorCode) >= 0) {
                     return;
-                }
+                }*/
             }
             view.onPlaybackStateChanged(pPlaybackState);
         }
@@ -215,7 +215,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
         }
     }
 
-    protected boolean isLoadDataOnStart() {
+    protected boolean isLoadDataOnConnection() {
         return true;
     }
 
