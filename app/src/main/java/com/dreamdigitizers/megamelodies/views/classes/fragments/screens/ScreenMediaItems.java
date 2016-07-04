@@ -89,6 +89,11 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     }
 
     @Override
+    public void addMediaItem(MediaBrowserCompat.MediaItem pMediaItem, boolean pIsAddToTop) {
+        this.mFragmentMediaItems.addMediaItem(pMediaItem, pIsAddToTop);
+    }
+
+    @Override
     public void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop) {
         this.mFragmentMediaItems.addMediaItems(pMediaItems, pIsAddToTop);
     }

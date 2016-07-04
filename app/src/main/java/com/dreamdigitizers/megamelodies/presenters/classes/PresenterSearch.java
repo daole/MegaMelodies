@@ -16,6 +16,12 @@ class PresenterSearch extends PresenterTracks<IViewSearch> implements IPresenter
     }
 
     @Override
+    protected void load(String pMediaId) {
+        this.connect();
+        super.load(pMediaId);
+    }
+
+    @Override
     protected String getMediaId() {
         return this.buildMediaId();
     }
@@ -26,7 +32,6 @@ class PresenterSearch extends PresenterTracks<IViewSearch> implements IPresenter
         if (view != null) {
             this.mOffset = 0;
             view.showNetworkProgress();
-            this.connect();
             this.load(this.getMediaId());
         }
     }

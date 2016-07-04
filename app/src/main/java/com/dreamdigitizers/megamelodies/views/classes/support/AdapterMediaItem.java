@@ -42,17 +42,24 @@ public abstract class AdapterMediaItem<V extends AdapterMediaItem.MediaItemViewH
         this.notifyDataSetChanged();
     }
 
-    public void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop) {
-        for (MediaBrowserCompat.MediaItem mediaItem : pMediaItems) {
-            if (pIsAddToTop) {
-                this.mMediaItems.add(0, mediaItem);
-                this.notifyItemInserted(0);
-            } else {
-                int index = this.mMediaItems.size();
-                this.mMediaItems.add(mediaItem);
-                this.notifyItemInserted(index);
-            }
+    public void addMediaItem(MediaBrowserCompat.MediaItem pMediaItem, boolean pIsAddToTop) {
+        if (pIsAddToTop) {
+            this.mMediaItems.add(0, pMediaItem);
+            this.notifyItemInserted(0);
+        } else {
+            int position = this.mMediaItems.size();
+            this.mMediaItems.add(pMediaItem);
+            this.notifyItemInserted(position);
         }
+    }
+
+    public void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop) {
+        if (pIsAddToTop) {
+            this.mMediaItems.addAll(0, pMediaItems);
+        } else {
+            this.mMediaItems.addAll(pMediaItems);
+        }
+        this.notifyDataSetChanged();
     }
 
     public void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem) {

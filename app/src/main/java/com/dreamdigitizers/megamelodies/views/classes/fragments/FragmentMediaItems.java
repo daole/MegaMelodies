@@ -93,6 +93,10 @@ public abstract class FragmentMediaItems extends FragmentBase {
         this.mMediaItemAdapter.clearMediaItems();
     }
 
+    public void addMediaItem(MediaBrowserCompat.MediaItem pMediaItem, boolean pIsAddToTop) {
+        this.mMediaItemAdapter.addMediaItem(pMediaItem, pIsAddToTop);
+    }
+
     public void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop) {
         this.mMediaItemAdapter.addMediaItems(pMediaItems, pIsAddToTop);
     }

@@ -30,9 +30,7 @@ class PresenterPlaylist extends PresenterTracks<IViewPlaylist> implements IPrese
         IViewPlaylist view = this.getView();
         if (view != null) {
             if (Integer.parseInt(id) == view.getPlaylistId()) {
-                List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
-                mediaItems.add(mediaItemPlaylistPair.mMediaItem);
-                view.addMediaItems(mediaItems, false);
+                view.addMediaItem(mediaItemPlaylistPair.mMediaItem, false);
             }
             view.hideNetworkProgress();
             view.onAddToRemoveFromPlaylistResult();
