@@ -47,6 +47,10 @@ public class ScreenSearch extends ScreenTracks<IPresenterSearch> implements IVie
     }
 
     @Override
+    public void onShow() {
+    }
+
+    @Override
     public int getScreenId() {
         return 0;
     }

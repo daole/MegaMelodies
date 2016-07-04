@@ -78,11 +78,6 @@ public class ScreenPlaylists extends ScreenMediaItems<IPresenterPlaylists> imple
     }
 
     @Override
-    public void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem) {
-        this.mFragmentMediaItems.removeMediaItem(pMediaItem);
-    }
-
-    @Override
     public void onItemClicked(MediaBrowserCompat.MediaItem pMediaItem) {
         Playlist playlist = (Playlist) pMediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__PLAYLIST);
         this.mScreenPlaylist.setPlaylist(playlist);

@@ -25,7 +25,6 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
 
     protected FrameLayout mPlaceHolderTracks;
     protected FragmentMediaItems mFragmentMediaItems;
-    protected boolean mIsConnected;
 
     @Override
     public void onStart() {
@@ -42,24 +41,6 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     }
 
     @Override
-    public void setUserVisibleHint(boolean pIsVisibleToUser) {
-        super.setUserVisibleHint(pIsVisibleToUser);
-        if (pIsVisibleToUser) {
-            if (!this.mIsConnected) {
-                if (this.mFragmentMediaItems != null && !(this instanceof ScreenSearch)) {
-                    this.mFragmentMediaItems.clearMediaItems();
-                }
-                this.mPresenter.connect();
-                this.mIsConnected = true;
-            }
-        } else {
-            if (this.mIsConnected) {
-                this.mPresenter.disconnect();
-                this.mIsConnected = false;
-            }
-        }
-    }
-
     protected boolean shouldSetThisScreenAsCurrentScreen() {
         return false;
     }
@@ -113,6 +94,11 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     }
 
     @Override
+    public void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem) {
+        this.mFragmentMediaItems.removeMediaItem(pMediaItem);
+    }
+
+    @Override
     public void onScrollEnd() {
         this.mPresenter.loadMore();
     }
@@ -140,6 +126,21 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     @Override
     public void seekTo(int pPosition) {
         this.mPresenter.seekTo(pPosition);
+    }
+
+    public void onShow() {
+        if (this.mFragmentMediaItems != null) {
+            this.mFragmentMediaItems.clearMediaItems();
+        }
+        if (this.mPresenter != null) {
+            this.mPresenter.connect();
+        }
+    }
+
+    public void onHide() {
+        if (this.mPresenter != null) {
+            this.mPresenter.disconnect();
+        }
     }
 
     protected abstract FragmentMediaItems createFragmentMediaItems();

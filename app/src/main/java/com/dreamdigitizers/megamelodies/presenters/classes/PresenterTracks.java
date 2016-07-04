@@ -81,8 +81,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
     public void favorite(MediaBrowserCompat.MediaItem pMediaItem) {
         if (this.mTransportControls != null) {
             Bundle bundle =  pMediaItem.getDescription().getExtras();
-            Track track = (Track) bundle.getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
-            this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(track.getId(), track);
+            this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE).put(pMediaItem.getMediaId(), pMediaItem);
             this.mTransportControls.sendCustomAction(ServicePlayback.CUSTOM_ACTION__FAVORITE, bundle);
         }
     }
@@ -124,30 +123,31 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
             Bundle bundle = new Bundle();
             bundle.putSerializable(Constants.BUNDLE_KEY__TRACK, track);
             bundle.putSerializable(Constants.BUNDLE_KEY__PLAYLIST, playlist);
-            TrackPlaylistPair trackPlaylistPair = new TrackPlaylistPair(track, playlist);
+            MediaItemPlaylistPair mediaItemPlaylistPair = new MediaItemPlaylistPair(pTrack, playlist);
             String customAction;
             if (pIsAdd) {
                 customAction = ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST;
             } else {
                 customAction = ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST;
             }
-            this.mTransactionActions.get(customAction).put(Integer.toString(playlist.getId()), trackPlaylistPair);
+            this.mTransactionActions.get(customAction).put(Integer.toString(playlist.getId()), mediaItemPlaylistPair);
             this.mTransportControls.sendCustomAction(customAction, bundle);
         }
     }
 
-    private int checkPlaylistInputData(String pPlaylistName) {
+    protected int checkPlaylistInputData(String pPlaylistName) {
         if (UtilsString.isEmpty(pPlaylistName)) {
             return R.string.error__blank_playlist_title;
         }
         return 0;
     }
 
-    private void handleFavoriteEvent(Uri pUri) {
+    protected void handleFavoriteEvent(Uri pUri) {
         String id = pUri.getQueryParameter("trackId");
         boolean userFavorite = Boolean.parseBoolean(pUri.getQueryParameter("userFavorite"));
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__FAVORITE);
-        Track track = (Track) transactions.get(id);
+        MediaBrowserCompat.MediaItem mediaItem = (MediaBrowserCompat.MediaItem) transactions.get(id);
+        Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
         track.setFavorite(userFavorite);
         transactions.remove(id);
         V view = this.getView();
@@ -156,7 +156,7 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
         }
     }
 
-    private void handleCreatePlaylistEvent(Uri pUri) {
+    protected void handleCreatePlaylistEvent(Uri pUri) {
         String id = pUri.getQueryParameter("trackId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__CREATE_PLAYLIST);
         transactions.remove(id);
@@ -167,11 +167,12 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
         }
     }
 
-    private void handleAddToPlaylistEvent(Uri pUri) {
+    protected void handleAddToPlaylistEvent(Uri pUri) {
         String id = pUri.getQueryParameter("playlistId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__ADD_TO_PLAYLIST);
-        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(id);
-        trackPlaylistPair.mPlaylist.getTracks().add(trackPlaylistPair.mTrack);
+        MediaItemPlaylistPair mediaItemPlaylistPair = (MediaItemPlaylistPair) transactions.get(id);
+        Track track = (Track) mediaItemPlaylistPair.mMediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+        mediaItemPlaylistPair.mPlaylist.getTracks().add(track);
         transactions.remove(id);
         V view = this.getView();
         if (view != null) {
@@ -180,11 +181,12 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
         }
     }
 
-    private void handleRemoveFromPlaylistEvent(Uri pUri) {
+    protected void handleRemoveFromPlaylistEvent(Uri pUri) {
         String id = pUri.getQueryParameter("playlistId");
         HashMap transactions = this.mTransactionActions.get(ServicePlayback.CUSTOM_ACTION__REMOVE_FROM_PLAYLIST);
-        TrackPlaylistPair trackPlaylistPair = (TrackPlaylistPair) transactions.get(id);
-        trackPlaylistPair.mPlaylist.getTracks().remove(trackPlaylistPair.mTrack);
+        MediaItemPlaylistPair mediaItemPlaylistPair = (MediaItemPlaylistPair) transactions.get(id);
+        Track track = (Track) mediaItemPlaylistPair.mMediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+        mediaItemPlaylistPair.mPlaylist.getTracks().remove(track);
         transactions.remove(id);
         V view = this.getView();
         if (view != null) {
@@ -193,12 +195,12 @@ abstract class PresenterTracks<V extends IViewTracks> extends PresenterMediaItem
         }
     }
 
-    private class TrackPlaylistPair {
-        private Track mTrack;
-        private Playlist mPlaylist;
+    protected class MediaItemPlaylistPair {
+        protected MediaBrowserCompat.MediaItem mMediaItem;
+        protected Playlist mPlaylist;
 
-        private TrackPlaylistPair(Track pTrack, Playlist pPlaylist) {
-            this.mTrack = pTrack;
+        private MediaItemPlaylistPair(MediaBrowserCompat.MediaItem pMediaItem, Playlist pPlaylist) {
+            this.mMediaItem = pMediaItem;
             this.mPlaylist = pPlaylist;
         }
     }

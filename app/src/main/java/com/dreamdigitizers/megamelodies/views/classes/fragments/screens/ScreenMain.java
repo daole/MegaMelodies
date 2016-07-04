@@ -26,6 +26,8 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     private ViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
 
+    private int mLastTabPosition;
+
     @Override
     public boolean onBackPressed() {
         ScreenBase screenBase = (ScreenBase) this.mViewPagerAdapter.getItem(this.mViewPager.getCurrentItem());
@@ -95,6 +97,18 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
 
     private void onPageSelected(int pPosition) {
         this.mToolbar.setTitle(this.mViewPager.getAdapter().getPageTitle(pPosition));
+
+        Fragment fragment = this.mViewPagerAdapter.getItem(this.mLastTabPosition);
+        if (fragment instanceof ScreenMediaItems) {
+            ((ScreenMediaItems) fragment).onHide();
+        }
+
+        fragment = this.mViewPagerAdapter.getItem(pPosition);
+        if (fragment instanceof ScreenMediaItems) {
+            ((ScreenMediaItems) fragment).onShow();
+        }
+
+        this.mLastTabPosition = pPosition;
     }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {

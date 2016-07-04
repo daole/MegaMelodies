@@ -58,15 +58,4 @@ public class ScreenPlaylist extends ScreenTracks<IPresenterPlaylist> implements 
     public void setPlaylist(Playlist pPlaylist) {
         this.mPlaylist = pPlaylist;
     }
-
-    public void onShow() {
-        this.mFragmentMediaItems.clearMediaItems();
-        this.mPresenter.connect();
-    }
-
-    public void onHide() {
-        if (this.mPresenter != null) {
-            this.mPresenter.disconnect();
-        }
-    }
 }

@@ -15,4 +15,5 @@ public interface IViewMediaItems extends IViewBase {
     void onMetadataChanged(MediaMetadataCompat pMediaMetadata);
     void updateState();
     void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop);
+    void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem);
 }

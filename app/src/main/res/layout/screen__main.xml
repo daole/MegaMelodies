@@ -24,6 +24,7 @@
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tabLayout"
+        support:tabMaxWidth="0dp"
         support:tabMode="fixed"
         support:tabGravity="fill"
         support:tabIndicatorColor="@android:color/white"

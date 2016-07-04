@@ -43,17 +43,22 @@ public abstract class AdapterMediaItem<V extends AdapterMediaItem.MediaItemViewH
     }
 
     public void addMediaItems(List<MediaBrowserCompat.MediaItem> pMediaItems, boolean pIsAddToTop) {
-        if (pIsAddToTop) {
-            this.mMediaItems.addAll(0, pMediaItems);
-        } else {
-            this.mMediaItems.addAll(pMediaItems);
+        for (MediaBrowserCompat.MediaItem mediaItem : pMediaItems) {
+            if (pIsAddToTop) {
+                this.mMediaItems.add(0, mediaItem);
+                this.notifyItemInserted(0);
+            } else {
+                int index = this.mMediaItems.size();
+                this.mMediaItems.add(mediaItem);
+                this.notifyItemInserted(index);
+            }
         }
-        this.notifyDataSetChanged();
     }
 
     public void removeMediaItem(MediaBrowserCompat.MediaItem pMediaItem) {
+        int index = this.mMediaItems.indexOf(pMediaItem);
         this.mMediaItems.remove(pMediaItem);
-        this.notifyDataSetChanged();
+        this.notifyItemRemoved(index);
     }
 
     protected abstract class MediaItemViewHolder extends RecyclerView.ViewHolder {
