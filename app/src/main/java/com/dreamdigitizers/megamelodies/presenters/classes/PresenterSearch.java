@@ -30,7 +30,7 @@ class PresenterSearch extends PresenterTracks<IViewSearch> implements IPresenter
     public void search() {
         IViewSearch view = this.getView();
         if (view != null) {
-            this.mOffset = 0;
+            this.reset();
             view.showNetworkProgress();
             this.load(this.getMediaId());
         }

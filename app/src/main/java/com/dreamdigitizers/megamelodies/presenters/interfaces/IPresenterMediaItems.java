@@ -5,6 +5,7 @@ import com.dreamdigitizers.androidbaselibrary.presenters.interfaces.IPresenterBa
 public interface IPresenterMediaItems extends IPresenterBase {
     void connect();
     void disconnect();
+    void reset();
     void loadMore();
     void skipToPrevious();
     void play();

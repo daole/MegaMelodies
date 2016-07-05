@@ -44,6 +44,7 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     public void onShow() {
         if (this.mFragmentMediaItems != null) {
             this.mFragmentMediaItems.clearMediaItems();
+            this.mPresenter.reset();
         }
         if (this.mPresenter != null) {
             this.mPresenter.connect();

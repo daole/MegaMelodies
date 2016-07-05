@@ -48,6 +48,9 @@ public class ScreenSearch extends ScreenTracks<IPresenterSearch> implements IVie
 
     @Override
     public void onShow() {
+        if (this.mPresenter != null) {
+            this.mPresenter.connect();
+        }
     }
 
     @Override

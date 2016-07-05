@@ -708,7 +708,6 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             if (this.mPlaylistMediaItems.containsKey(id)) {
                 for (Playlist playlist : this.mPlaylists) {
                     if (id == playlist.getId()) {
-                        playlist.getTracks().add(pTrack);
                         List<CustomQueueItem> customQueueItems = new ArrayList<>();
                         List<Track> tracks = new ArrayList<>();
                         tracks.add(pTrack);
