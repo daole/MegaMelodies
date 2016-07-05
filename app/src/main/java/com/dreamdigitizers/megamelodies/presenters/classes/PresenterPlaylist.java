@@ -1,7 +1,6 @@
 package com.dreamdigitizers.megamelodies.presenters.classes;
 
 import android.net.Uri;
-import android.support.v4.media.MediaBrowserCompat;
 
 import com.dreamdigitizers.megamelodies.Constants;
 import com.dreamdigitizers.megamelodies.models.Track;
@@ -10,9 +9,7 @@ import com.dreamdigitizers.megamelodies.views.classes.services.ServicePlayback;
 import com.dreamdigitizers.megamelodies.views.classes.services.support.MediaMetadataBuilder;
 import com.dreamdigitizers.megamelodies.views.interfaces.IViewPlaylist;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 class PresenterPlaylist extends PresenterTracks<IViewPlaylist> implements IPresenterPlaylist {
     public PresenterPlaylist(IViewPlaylist pView) {

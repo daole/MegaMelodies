@@ -6,7 +6,7 @@
     tools:context=".views.classes.activities.ActivityMain" >
 
     <FrameLayout
-        android:id="@+id/placeHolderTracks"
-        style="@style/Container.Full" />
+        android:id="@+id/placeHolderChildScreen"
+        style="@style/PlaceHolder.ChildScreen" />
 
 </RelativeLayout>

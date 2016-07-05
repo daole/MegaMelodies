@@ -221,6 +221,6 @@
         <item name="android:layout_marginBottom">@dimen/margin</item>
     </style>
 
-    <style name="PlaceHolder.PlaylistScreen" parent="Container.WrapContent">
+    <style name="PlaceHolder.ChildScreen" parent="Container.WrapContent">
     </style>
 </resources>

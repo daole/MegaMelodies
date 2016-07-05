@@ -41,6 +41,23 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     }
 
     @Override
+    public void onShow() {
+        if (this.mFragmentMediaItems != null) {
+            this.mFragmentMediaItems.clearMediaItems();
+        }
+        if (this.mPresenter != null) {
+            this.mPresenter.connect();
+        }
+    }
+
+    @Override
+    public void onHide() {
+        if (this.mPresenter != null) {
+            this.mPresenter.disconnect();
+        }
+    }
+
+    @Override
     protected boolean shouldSetThisScreenAsCurrentScreen() {
         return false;
     }
@@ -131,21 +148,6 @@ public abstract class ScreenMediaItems<P extends IPresenterMediaItems> extends S
     @Override
     public void seekTo(int pPosition) {
         this.mPresenter.seekTo(pPosition);
-    }
-
-    public void onShow() {
-        if (this.mFragmentMediaItems != null) {
-            this.mFragmentMediaItems.clearMediaItems();
-        }
-        if (this.mPresenter != null) {
-            this.mPresenter.connect();
-        }
-    }
-
-    public void onHide() {
-        if (this.mPresenter != null) {
-            this.mPresenter.disconnect();
-        }
     }
 
     protected abstract FragmentMediaItems createFragmentMediaItems();

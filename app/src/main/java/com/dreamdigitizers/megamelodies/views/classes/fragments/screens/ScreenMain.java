@@ -31,8 +31,8 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     @Override
     public boolean onBackPressed() {
         ScreenBase screenBase = (ScreenBase) this.mViewPagerAdapter.getItem(this.mViewPager.getCurrentItem());
-        boolean result = screenBase.onBackPressed();
-        if (result) {
+        boolean isHandled = screenBase.onBackPressed();
+        if (isHandled) {
             return true;
         }
         if (this.mViewPager.getCurrentItem() > 0) {
@@ -98,15 +98,11 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
     private void onPageSelected(int pPosition) {
         this.mToolbar.setTitle(this.mViewPager.getAdapter().getPageTitle(pPosition));
 
-        Fragment fragment = this.mViewPagerAdapter.getItem(this.mLastTabPosition);
-        if (fragment instanceof ScreenMediaItems) {
-            ((ScreenMediaItems) fragment).onHide();
-        }
+        ScreenBase screenBase = (ScreenBase) this.mViewPagerAdapter.getItem(this.mLastTabPosition);
+        screenBase.onHide();
 
-        fragment = this.mViewPagerAdapter.getItem(pPosition);
-        if (fragment instanceof ScreenMediaItems) {
-            ((ScreenMediaItems) fragment).onShow();
-        }
+        screenBase = (ScreenBase) this.mViewPagerAdapter.getItem(pPosition);
+        screenBase.onShow();
 
         this.mLastTabPosition = pPosition;
     }
@@ -124,8 +120,8 @@ public class ScreenMain extends ScreenBase<IPresenterMain> implements IViewMain 
             ScreenFavorites screenFavorites = new ScreenFavorites();
             this.mScreens.add(screenFavorites);
 
-            ScreenPlaylists screenPlaylists = new ScreenPlaylists();
-            this.mScreens.add(screenPlaylists);
+            ScreenWrapperPlaylists screenWrapperPlaylists = new ScreenWrapperPlaylists();
+            this.mScreens.add(screenWrapperPlaylists);
         }
 
         @Override

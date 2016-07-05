@@ -22,14 +22,6 @@ public class ScreenPlaylist extends ScreenTracks<IPresenterPlaylist> implements 
     }
 
     @Override
-    public void showNetworkProgress() {
-    }
-
-    @Override
-    public void hideNetworkProgress() {
-    }
-
-    @Override
     public int getScreenId() {
         return 0;
     }
