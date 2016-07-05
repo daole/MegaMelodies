@@ -326,11 +326,14 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                     endIndex = size;
                 }
                 mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
+                for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
+                    Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
+                    this.mPresenter.checkFavoriteTrack(track);
+                }
             }
 
             pResult.sendResult(mediaItems);
         } else {
-
             this.mLastServerId = serverId;
             this.mLastQuery = query;
             this.mLastType = type;

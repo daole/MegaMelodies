@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.dreamdigitizers.androidbaselibrary.utilities.UtilsString;
 import com.dreamdigitizers.megamelodies.R;
 import com.dreamdigitizers.megamelodies.presenters.classes.PresenterFactory;
 import com.dreamdigitizers.megamelodies.presenters.interfaces.IPresenterSearch;
@@ -48,8 +49,9 @@ public class ScreenSearch extends ScreenTracks<IPresenterSearch> implements IVie
 
     @Override
     public void onShow() {
-        if (this.mPresenter != null) {
-            this.mPresenter.connect();
+        super.onShow();
+        if (!UtilsString.isEmpty(this.mQuery)) {
+            this.mPresenter.search();
         }
     }
 
