@@ -88,6 +88,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
     private List<CustomQueueItem> mActiveQueue;
 
     private List<CustomQueueItem> mSearchQueue;
+    private List<CustomQueueItem> mLoadedSearchQueue;
     private List<CustomQueueItem> mFavoritesQueue;
     private List<Playlist> mPlaylists;
     private HashMap<Integer, List<CustomQueueItem>> mPlaylistQueues;
@@ -114,6 +115,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         super.onCreate();
 
         this.mSearchQueue = new ArrayList<>();
+        this.mLoadedSearchQueue = new ArrayList<>();
         this.mFavoritesQueue = new ArrayList<>();
         this.mPlaylists = new ArrayList<>();
         this.mPlaylistQueues = new HashMap<>();
@@ -325,6 +327,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
                 if (endIndex > size) {
                     endIndex = size;
                 }
+                this.mLoadedSearchQueue.addAll(this.mSearchQueue.subList(startIndex, endIndex));
                 mediaItems = this.mSearchMediaItems.subList(startIndex, endIndex);
                 for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
                     Track track = (Track) mediaItem.getDescription().getExtras().getSerializable(MediaMetadataBuilder.BUNDLE_KEY__TRACK);
@@ -333,6 +336,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             }
 
             pResult.sendResult(mediaItems);
+            this.mActiveQueue = this.mLoadedSearchQueue;
         } else {
             this.mLastServerId = serverId;
             this.mLastQuery = query;
@@ -342,6 +346,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             this.mLastEndIndex = endIndex;
 
             this.mSearchQueue = new ArrayList<>();
+            this.mLoadedSearchQueue = new ArrayList<>();
             this.mSearchMediaItems.clear();
 
             this.mSearchResult = pResult;
@@ -799,6 +804,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
             if (this.mLastEndIndex > size) {
                 this.mLastEndIndex = size;
             }
+            this.mLoadedSearchQueue.addAll(this.mSearchQueue.subList(this.mLastStartIndex, this.mLastEndIndex));
             mediaItems = this.mSearchMediaItems.subList(this.mLastStartIndex, this.mLastEndIndex);
 
             for (MediaBrowserCompat.MediaItem mediaItem : mediaItems) {
@@ -809,7 +815,7 @@ public class ServicePlayback extends ServiceMediaBrowser implements CustomLocalP
         this.mSearchResult.sendResult(mediaItems);
         this.mSearchResult = null;
         if (this.mActiveMode == ServicePlayback.ACTIVE_MODE__SEARCH) {
-            this.mActiveQueue = this.mSearchQueue;
+            this.mActiveQueue = this.mLoadedSearchQueue;
         }
     }
 
