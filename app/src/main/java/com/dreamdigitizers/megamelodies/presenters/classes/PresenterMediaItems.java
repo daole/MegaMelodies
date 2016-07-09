@@ -154,7 +154,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
         V view = this.getView();
         if (view != null) {
             if (pChildren.size() <= 0) {
-                view.showMessage(R.string.message__no_data_to_load, R.string.blank, null);
+                // view.showMessage(R.string.message__no_data_to_load, R.string.blank, null);
             } else {
                 view.addMediaItems(pChildren, false);
             }
