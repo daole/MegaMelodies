@@ -27,6 +27,7 @@ public class HelperNctSong {
         String[] selectionArgs = new String[] { pId };
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, projection, selection, selectionArgs, null);
         List<Track> tracks = HelperNctSong.fetchData(cursor);
+        cursor.close();
         if (tracks.isEmpty()) {
             return null;
         } else {
@@ -40,6 +41,7 @@ public class HelperNctSong {
         String selection = TableNctSong.TABLE_NAME + "." + TableNctSong.COLUMN_NAME__IS_FAVORITE + " > 0";
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__NCT_SONG, projection, selection, null, null);
         List<Track> tracks = HelperNctSong.fetchData(cursor);
+        cursor.close();
         return tracks;
     }
 

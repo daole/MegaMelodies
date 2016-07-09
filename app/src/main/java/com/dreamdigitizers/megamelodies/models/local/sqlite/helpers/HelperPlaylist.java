@@ -32,6 +32,7 @@ public class HelperPlaylist {
         projection = TablePlaylist.getColumnsForJoin().toArray(projection);
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__PLAYLIST, projection, null, null, null);
         List<Playlist> playlists = HelperPlaylist.fetchData(cursor);
+        cursor.close();
         return playlists;
     }
 

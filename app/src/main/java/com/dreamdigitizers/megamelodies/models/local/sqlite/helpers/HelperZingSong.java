@@ -19,6 +19,7 @@ public class HelperZingSong {
         String[] selectionArgs = new String[] { pId };
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, null, selection, selectionArgs, null);
         List<Track> tracks = HelperZingSong.fetchData(cursor);
+        cursor.close();
         if (tracks.isEmpty()) {
             return null;
         } else {
@@ -30,6 +31,7 @@ public class HelperZingSong {
         String selection = TableZingSong.COLUMN_NAME__IS_FAVORITE + " > 0";
         Cursor cursor = pContext.getContentResolver().query(ContentProviderMegaMelodies.CONTENT_URI__ZING_SONG, null, selection, null, null);
         List<Track> tracks = HelperZingSong.fetchData(cursor);
+        cursor.close();
         return tracks;
     }
 
