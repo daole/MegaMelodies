@@ -63,8 +63,8 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     @Override
     public void disconnect() {
         if (this.mMediaBrowser != null && this.mMediaBrowser.isConnected()) {
-            this.mMediaBrowser.unsubscribe(this.getMediaId(), this.mMediaBrowserSubscriptionCallback);
-            this.mMediaBrowser.unsubscribe(ServicePlayback.MEDIA_ID__PLAYLISTS_ALL, this.mMediaBrowserSubscriptionCallback);
+            this.mMediaBrowser.unsubscribe(this.getMediaId());
+            this.mMediaBrowser.unsubscribe(ServicePlayback.MEDIA_ID__PLAYLISTS_ALL);
             this.mMediaBrowser.disconnect();
             this.mMediaBrowser = null;
             this.mMediaController.unregisterCallback(this.mMediaControllerCallback);
@@ -122,7 +122,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
     }
 
     protected void load(String pMediaId) {
-        this.mMediaBrowser.unsubscribe(pMediaId, this.mMediaBrowserSubscriptionCallback);
+        this.mMediaBrowser.unsubscribe(pMediaId);
         this.mMediaBrowser.subscribe(pMediaId, this.mMediaBrowserSubscriptionCallback);
     }
 
@@ -163,7 +163,7 @@ abstract class PresenterMediaItems<V extends IViewMediaItems> extends PresenterB
             view.hideLoadMoreProgress();
         }
 
-        this.mMediaBrowser.unsubscribe(pParentId, this.mMediaBrowserSubscriptionCallback);
+        this.mMediaBrowser.unsubscribe(pParentId);
     }
 
     protected void onError(String pParentId) {

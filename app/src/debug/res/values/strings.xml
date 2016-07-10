@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="api_base_url">http://192.168.1.254:8080/</string>
-    <string name="api_username">datafetchingapisclient</string>
-    <string name="api_password">datafetchingapisclient</string>
-    <string name="keystore_password">keystorepassword</string>
+    <string name="api_base_url">https://datafetchingapis.sastudio.info:8443/</string>
+    <string name="api_username">be3cfa0ec7f7ba3fbe724bfd5bc5c201</string>
+    <string name="api_password">be3cfa0ec7f7ba3fbe724bfd5bc5c201</string>
+    <string name="keystore_password">SaStudio1702</string>
 </resources>
