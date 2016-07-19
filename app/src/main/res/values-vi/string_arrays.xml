@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="servers">
+        <item>Máy chủ 1</item>
+        <item>Máy chủ 2</item>
+    </string-array>
+</resources>

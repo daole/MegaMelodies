@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title__app_name">メガメロディーズ</string>
+    <string name="title__search">検索</string>
+    <string name="title__favorites">お気に入り</string>
+    <string name="title__playlists">プレイリストズ</string>
+    <string name="title__playlist">プレイリスト： %s</string>
+    <string name="title__servers">サーバー</string>
+
+    <string name="tab__add_to_playlist">追加</string>
+    <string name="tab__create_new_playlist">作成</string>
+
+    <string name="message__playlist_created">新しいプレイリストが作成されました。</string>
+    <string name="message__no_data_to_load">データがもっとありません。</string>
+
+    <string name="confirmation__delete_playlist">このプレイリストを削除しますか？</string>
+
+    <string name="context_menu_item__delete">削除する</string>
+    <string name="context_menu_item__favorite">お気に入り</string>
+    <string name="context_menu_item__unfavorite">お気に入りません</string>
+    <string name="context_menu_item__playlist">プレイリストに追加</string>
+
+    <string name="action__play">プレイ</string>
+    <string name="action__pause">ポーズ</string>
+    <string name="action__stop">ストップ</string>
+    <string name="action__skip_to_previous">前</string>
+    <string name="action__skip_to_next">次</string>
+
+    <string name="media_description_title__search">検索</string>
+    <string name="media_description_title__favorite">お気に入り</string>
+    <string name="media_description_title__playlist">プレイリスト</string>
+
+    <string name="media_description_subtitle__search">検索</string>
+    <string name="media_description_subtitle__favorite">お気に入り</string>
+    <string name="media_description_subtitle__playlist">プレイリスト</string>
+
+    <string name="hint__song_search">ローマ字で入力してください</string>
+    <string name="hint_playlist_title">タイトル</string>
+
+    <string name="error__media_network">ネットワークエラーが発生しました。</string>
+    <string name="error__blank_playlist_title">タイトルを入力してください。</string>
+
+    <plurals name="label__tracks_num">
+        <item quantity="one">%s歌</item>
+        <item quantity="other">%s歌</item>
+    </plurals>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title__app_name">Mega Melodies</string>
+    <string name="title__search">Tìm kiếm</string>
+    <string name="title__favorites">Thích</string>
+    <string name="title__playlists">Danh sách</string>
+    <string name="title__playlist">Danh sách: %s</string>
+    <string name="title__servers">Máy chủ</string>
+
+    <string name="tab__add_to_playlist">Thêm</string>
+    <string name="tab__create_new_playlist">Tạo mới</string>
+
+    <string name="message__playlist_created">Danh sách mới đã được tạo.</string>
+    <string name="message__no_data_to_load">Đã tải hết dữ liệu.</string>
+
+    <string name="confirmation__delete_playlist">Bạn có chắc là bạn muốn xóa danh sách này?</string>
+
+    <string name="context_menu_item__delete">Xóa</string>
+    <string name="context_menu_item__favorite">Thích</string>
+    <string name="context_menu_item__unfavorite">Bỏ thích</string>
+    <string name="context_menu_item__playlist">Thêm vào danh sách</string>
+
+    <string name="action__play">Chơi</string>
+    <string name="action__pause">Tạm Ngưng</string>
+    <string name="action__stop">Dừng</string>
+    <string name="action__skip_to_previous">Trước</string>
+    <string name="action__skip_to_next">Kế</string>
+
+    <string name="media_description_title__search">Tìm kiếm</string>
+    <string name="media_description_title__favorite">Thích</string>
+    <string name="media_description_title__playlist">Danh sách</string>
+
+    <string name="media_description_subtitle__search">Tìm kiếm</string>
+    <string name="media_description_subtitle__favorite">Thích</string>
+    <string name="media_description_subtitle__playlist">Danh sách</string>
+
+    <string name="hint__song_search">Tên bài hát, ca sỹ...</string>
+    <string name="hint_playlist_title">Tiêu đề</string>
+
+    <string name="error__media_network">Đã xảy ra lỗi kết nối.</string>
+    <string name="error__blank_playlist_title">Xin hãy nhập tiêu đề cho danh sách.</string>
+
+    <plurals name="label__tracks_num">
+        <item quantity="one">%s bài</item>
+        <item quantity="other">%s bài</item>
+    </plurals>
+</resources>
