@@ -1,11 +1,13 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Container.Full"
     tools:context=".views.classes.activities.ActivityMain" >
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
+        android:layout_above="@+id/adView"
         style="@style/Container.Full" >
 
         <FrameLayout
@@ -13,5 +15,11 @@
             style="@style/Container.Full" />
 
     </android.support.design.widget.CoordinatorLayout >
+
+    <com.google.android.gms.ads.AdView
+        android:id="@id/adView"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/ad_unit_id__banner_main_activity"
+        style="@style/AdView" />
 
 </RelativeLayout>

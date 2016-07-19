@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation" >
+
     <string name="title__app_name">メガメロディーズ</string>
     <string name="title__search">検索</string>
     <string name="title__favorites">お気に入り</string>
@@ -44,4 +47,5 @@
         <item quantity="one">%s歌</item>
         <item quantity="other">%s歌</item>
     </plurals>
+
 </resources>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ad_unit_id__banner_main_activity">ca-app-pub-3940256099942544/6300978111</string>
+
     <string name="api_base_url">https://datafetchingapis.sastudio.info:8443/</string>
     <string name="api_username">be3cfa0ec7f7ba3fbe724bfd5bc5c201</string>
     <string name="api_password">be3cfa0ec7f7ba3fbe724bfd5bc5c201</string>
